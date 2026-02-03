@@ -36,3 +36,16 @@ export class SignUpDto {
   @IsEnum(SystemRoles)
   role: string;
 }
+
+
+export class LoginBodyDto {
+  @IsEmail()
+  @IsNotEmpty()
+  email: string;
+
+
+  @IsNotEmpty()
+  @IsStrongPassword()
+  password: string;
+
+}

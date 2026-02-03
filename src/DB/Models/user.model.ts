@@ -1,7 +1,7 @@
 import { MongooseModule, Prop, Schema,SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
 import { SystemRoles } from 'src/Common/Types';
-import { Hash } from 'src/Security';
+import { Hash } from 'src/Common/Security';
 @Schema({ timestamps: true })
 export class User {
   @Prop({
