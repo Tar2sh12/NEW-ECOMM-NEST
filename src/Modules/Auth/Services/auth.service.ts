@@ -4,40 +4,64 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
-import { UserRepository } from '../../../DB/Repositories';
+import { OTPRepository, UserRepository } from '../../../DB/Repositories';
 import { SignUpDto } from '../DTO/auth.dto';
 import { Events } from 'src/Common/Utils';
 import { TokenService } from 'src/Common/Services';
 import { CompareHash } from 'src/Common/Security';
 import { v4 as uuid4 } from 'uuid';
 import { UserType } from 'src/DB/Models';
+import { OTPTypes } from 'src/Common/Types';
+import { DateTime } from "luxon";
 @Injectable()
 export class AuthService {
   constructor(
     private readonly userRepository: UserRepository,
     private tokenService: TokenService,
+    private otpRepository: OTPRepository,
   ) {}
 
   async signUpService(body: SignUpDto) {
     try {
-      const { email, username, password, age } = body;
+      const {
+        email,
+        firstName,
+        lastName,
+        password,
+        age,
+        phone,
+        role,
+        gender,
+        DOB,
+      } = body;
       const existingUser = await this.userRepository.findByEmail(email);
       if (existingUser) {
         throw new ConflictException('Email already in use');
       }
+
+      const newUser = await this.userRepository.create({
+        email,
+        firstName,
+        lastName,
+        password,
+        role,
+        phone,
+        gender,
+        age,
+        DOB: DateTime.fromJSDate(DOB),
+      });
       const otp = Math.random().toString(36).substring(2, 8).toUpperCase();
+      await this.otpRepository.create({
+        userId: newUser._id,
+        otp,
+        otpType: OTPTypes.CONFIRMATION,
+        expiryTime: new Date(Date.now() + 1000 * 60 * 10),
+      });
       Events.emit('sendEmail', {
         from: process.env.EMAIL_FROM,
         to: email,
         subject: 'Welcome to Our Platform - Verify Your Email',
-        html: `Hello ${username},<br><br>Thank you for signing up! Please use the following OTP to verify your email address: <b>${otp}</b><br><br>Best regards,<br>The Team`,
-      });
-
-      const newUser = await this.userRepository.create({
-        email,
-        username,
-        password,
-        age,
+        html: `Hello ${firstName},<br><br>Thank you for signing up! Please use the following OTP to verify your email address: <b>${otp}</b><br><br>Best regards,<br>The Team`,
       });
       return newUser;
     } catch (error) {

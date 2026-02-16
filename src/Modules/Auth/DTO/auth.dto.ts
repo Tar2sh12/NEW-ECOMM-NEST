@@ -1,4 +1,6 @@
+import { Type } from 'class-transformer';
 import {
+  IsDate,
   IsEmail,
   IsEnum,
   IsNotEmpty,
@@ -7,8 +9,8 @@ import {
   IsStrongPassword,
   MinLength,
 } from 'class-validator';
-import { SystemRoles } from 'src/Common/Types';
-
+import { GenderEnum, SystemRoles } from 'src/Common/Types';
+import { DateTime } from "luxon";
 export class SignUpDto {
   @IsEmail()
   @IsNotEmpty()
@@ -23,9 +25,19 @@ export class SignUpDto {
   @IsNotEmpty()
   @IsString()
   @MinLength(3)
-  username: string;
+  firstName: string;
 
 
+  @IsNotEmpty()
+  @IsString()
+  @MinLength(3)
+  lastName: string;
+
+
+   @IsNotEmpty()
+  @IsString()
+  @MinLength(3)
+  phone: string;
   @IsNotEmpty()
   @IsNumber()
   age: number;
@@ -34,7 +46,19 @@ export class SignUpDto {
   @IsString()
   @IsNotEmpty()
   @IsEnum(SystemRoles)
-  role: string;
+  role: SystemRoles;
+
+
+  @IsString()
+  @IsNotEmpty()
+  @IsEnum(GenderEnum)
+  gender: GenderEnum;
+
+
+  @IsDate()
+  @Type(() => Date)//used to convert string to date
+  @IsNotEmpty()
+  DOB: Date;
 }
 
 

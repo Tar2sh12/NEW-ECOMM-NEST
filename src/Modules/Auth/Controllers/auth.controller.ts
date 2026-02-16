@@ -2,7 +2,8 @@ import { Body, Controller, Post, Res,Req, Get, UseGuards } from '@nestjs/common'
 import { Response } from 'express';
 import { AuthService } from '../Services/auth.service';
 import { LoginBodyDto, SignUpDto } from '../DTO/auth.dto';
-import { AuthenticationGuard } from 'src/Common/Guards';
+import {Auth } from 'src/Common/Guards';
+import { SystemRoles } from 'src/Common/Types';
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
@@ -19,10 +20,9 @@ export class AuthController {
   }
 
   @Get('get-profile')
-  @UseGuards(AuthenticationGuard)
+  @Auth([SystemRoles.ADMIN,SystemRoles.USER])
   getProfileHandler(@Res() res: Response,@Req() req: Request) {
     const authUser = req['authUser'];
-    console.log('auth user in controller', authUser);
     const result = this.authService.getProfileService(authUser);
     return res.status(200).json(result);
   }

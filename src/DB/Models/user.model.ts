@@ -1,7 +1,7 @@
-import { MongooseModule, Prop, Schema,SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument } from 'mongoose';
-import { SystemRoles } from 'src/Common/Types';
-import { Hash } from 'src/Common/Security';
+import { MongooseModule, Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { HydratedDocument ,Document} from 'mongoose';
+import { GenderEnum, SystemRoles } from 'src/Common/Types';
+import { Hash,encrypt } from 'src/Common/Security';
 @Schema({ timestamps: true })
 export class User {
   @Prop({
@@ -9,11 +9,20 @@ export class User {
     type: String,
     trim: true,
   })
-  username: string;
+  firstName: string;
+
   @Prop({
     required: true,
     type: String,
-    unique: true,
+    trim: true,
+  })
+  lastName: string;
+
+  @Prop({
+    required: true,
+    type: String,
+    //unique: true,
+    index:{name:"email_unique_idx", unique: true},
   })
   email: string;
   @Prop({
@@ -33,6 +42,37 @@ export class User {
     default: SystemRoles.USER,
   })
   role: SystemRoles;
+
+  @Prop({
+    required: true,
+    type: String,
+    enum: GenderEnum,
+  })
+  gender: GenderEnum;
+
+  @Prop({
+    required: true,
+    type: String,
+    unique: true,
+  })
+  phone: string;
+
+  @Prop({
+    type: Boolean,
+    default: false,
+  })
+  isEmailVerified: boolean;
+
+  @Prop({
+    type: Date,
+  })
+  DOB: Date;
+
+  @Prop({
+    type: Boolean,
+    default: false,
+  })
+  isDeleted: boolean;
 }
 
 //creating the actual mongoose schema
@@ -42,8 +82,13 @@ userSchema.pre('save', function () {
   if (changes && changes.password) {
     this.password = Hash(changes.password, +process.env.SALT_ROUNDS);
   }
-})
-//creating the model 
-export const UserModel = MongooseModule.forFeature([{ name: User.name, schema: userSchema }]);
+  if(changes.phone){
+    this.phone=encrypt(this.phone,process.env.SECRET_ENCRYPTION_KEY);
+  }
+});
+//creating the model
+export const UserModel = MongooseModule.forFeature([
+  { name: User.name, schema: userSchema },
+]);
 //type for the user document used for some restrictions
-export type UserType = HydratedDocument<User>;
+export type UserType = HydratedDocument<User> & Document;

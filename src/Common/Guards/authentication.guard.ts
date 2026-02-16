@@ -1,7 +1,7 @@
 import {
-  BadRequestException,
   CanActivate,
   ExecutionContext,
+  HttpException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -32,12 +32,13 @@ export class AuthenticationGuard implements CanActivate {
       if (!user) {
         throw new NotFoundException('User not found');
       }
-      
+
       request.authUser = user;
-      
-      
     } catch (error) {
       console.log('auth guard error', error);
+      if (error instanceof HttpException) {
+        throw error;
+      }
       throw new InternalServerErrorException(error.message);
     }
 
