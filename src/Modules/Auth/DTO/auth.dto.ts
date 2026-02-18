@@ -73,3 +73,13 @@ export class LoginBodyDto {
   password: string;
 
 }
+
+export class ConfirmationEmailDto{
+  @IsEmail()
+  @IsNotEmpty()
+  email: string;
+
+  @IsNotEmpty()
+  @IsString()
+  otp: string;
+}

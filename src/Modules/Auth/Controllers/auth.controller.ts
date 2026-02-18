@@ -1,8 +1,16 @@
-import { Body, Controller, Post, Res,Req, Get, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Post,
+  Res,
+  Req,
+  Get,
+  Patch,
+} from '@nestjs/common';
 import { Response } from 'express';
 import { AuthService } from '../Services/auth.service';
-import { LoginBodyDto, SignUpDto } from '../DTO/auth.dto';
-import {Auth } from 'src/Common/Guards';
+import { LoginBodyDto, SignUpDto,ConfirmationEmailDto } from '../DTO/auth.dto';
+import { Auth } from 'src/Common/Guards';
 import { SystemRoles } from 'src/Common/Types';
 @Controller('auth')
 export class AuthController {
@@ -19,9 +27,18 @@ export class AuthController {
     return res.status(201).json(result);
   }
 
+  @Patch('confirm-email')
+  async confirmEmailHandler(
+    @Body() body:ConfirmationEmailDto,
+    @Res() res: Response,
+  ) {
+    const result = await this.authService.confirmEmailService(body);
+    return res.status(200).json(result);
+  }
+
   @Get('get-profile')
-  @Auth([SystemRoles.ADMIN,SystemRoles.USER])
-  getProfileHandler(@Res() res: Response,@Req() req: Request) {
+  @Auth([SystemRoles.ADMIN, SystemRoles.USER])
+  getProfileHandler(@Res() res: Response, @Req() req: Request) {
     const authUser = req['authUser'];
     const result = this.authService.getProfileService(authUser);
     return res.status(200).json(result);

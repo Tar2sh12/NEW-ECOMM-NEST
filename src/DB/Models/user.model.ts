@@ -82,8 +82,8 @@ userSchema.pre('save', function () {
   if (changes && changes.password) {
     this.password = Hash(changes.password, +process.env.SALT_ROUNDS);
   }
-  if(changes.phone){
-    this.phone=encrypt(this.phone,process.env.SECRET_ENCRYPTION_KEY);
+  if(changes && changes.phone){
+    this.phone=encrypt(changes.phone,process.env.SECRET_ENCRYPTION_KEY);
   }
 });
 //creating the model
