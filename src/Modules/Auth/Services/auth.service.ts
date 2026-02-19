@@ -4,14 +4,14 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
-import { OTPRepository, UserRepository } from '../../../DB/Repositories';
+import { OTPRepository, RevokedTokensRepository, UserRepository } from '../../../DB/Repositories';
 import { SignUpDto, ConfirmationEmailDto } from '../DTO/auth.dto';
 import { Events } from 'src/Common/Utils';
 import { TokenService } from 'src/Common/Services';
 import { CompareHash } from 'src/Common/Security';
 import { v4 as uuid4 } from 'uuid';
 import { UserType } from 'src/DB/Models';
-import { OTPTypes } from 'src/Common/Types';
+import { IAuthUser, OTPTypes } from 'src/Common/Types';
 import { DateTime } from 'luxon';
 import { StringValue } from 'src/Common/Types';
 @Injectable()
@@ -20,6 +20,7 @@ export class AuthService {
     private readonly userRepository: UserRepository,
     private tokenService: TokenService,
     private otpRepository: OTPRepository,
+    private readonly revokedTokensRepository: RevokedTokensRepository,
   ) {}
 
   async signUpService(body: SignUpDto) {
@@ -141,5 +142,20 @@ export class AuthService {
 
   getProfileService(authUser: UserType) {
     return authUser;
+  }
+
+  async logoutService(authUser: IAuthUser) {
+    try {
+      const tokenId = authUser.token['jti'];
+      const expireTime = new Date(authUser.token['exp'] * 1000);
+      await this.revokedTokensRepository.create({
+        tokenId,
+        userId: authUser.user._id,
+        expireTime,
+      });
+      return { message: 'Logged out successfully' };
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
+    }
   }
 }

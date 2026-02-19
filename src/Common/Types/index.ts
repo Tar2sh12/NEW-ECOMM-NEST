@@ -1,2 +1,3 @@
 export * from "./enums"
-export * from "./types.type";
+export * from "./types";
+export * from "./interfaces";

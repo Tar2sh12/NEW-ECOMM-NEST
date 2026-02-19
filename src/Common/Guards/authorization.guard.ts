@@ -13,7 +13,7 @@ export class AuthorizationGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     try {
       const request = context.switchToHttp().getRequest();
-      const authUserRole = request['authUser'].role;
+      const authUserRole = request['authUser'].user.role;
       //const requiredRoles = this.reflector.getAllAndMerge(Roles,[context.getHandler(), context.getClass()]);//roles set by decorator on route handler and the whole controller and merges them
       //const requiredRolesController = this.reflector.get(Roles,context.getClass());//roles set by decorator on the whole controller
 
