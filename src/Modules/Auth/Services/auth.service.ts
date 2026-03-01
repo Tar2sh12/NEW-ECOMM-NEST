@@ -5,7 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { OTPRepository, RevokedTokensRepository, UserRepository } from '../../../DB/Repositories';
-import { SignUpDto, ConfirmationEmailDto } from '../DTO/auth.dto';
+import { SignUpDto, ConfirmationEmailDto } from '../dto/auth.dto';
 import { Events } from 'src/Common/Utils';
 import { TokenService } from 'src/Common/Services';
 import { CompareHash } from 'src/Common/Security';

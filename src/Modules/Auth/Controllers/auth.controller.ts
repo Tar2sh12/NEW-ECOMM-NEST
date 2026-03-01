@@ -1,7 +1,7 @@
 import { Body, Controller, Post, Res, Req, Get, Patch } from '@nestjs/common';
 import { Response } from 'express';
 import { AuthService } from '../Services/auth.service';
-import { LoginBodyDto, SignUpDto, ConfirmationEmailDto } from '../DTO/auth.dto';
+import { LoginBodyDto, SignUpDto, ConfirmationEmailDto } from '../dto/auth.dto';
 import { Auth } from 'src/Common/Guards';
 import { SystemRoles,IAuthUser } from 'src/Common/Types';
 import { User } from 'src/Common/Decorators/User-data.custom.decorator';
