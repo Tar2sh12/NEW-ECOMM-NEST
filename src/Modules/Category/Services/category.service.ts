@@ -36,7 +36,7 @@ export class CategoryService {
       //upload the image to cloudinary
       const imageResult = await this.cloudUploadFilesService.uploadFile(
         image.path,
-        { folder: `${process.env.CLOUDINARY_UPLOADS_FOLDER}/${folderId}` },
+        { folder: `${process.env.CLOUDINARY_UPLOADS_FOLDER}/Categories/${folderId}` },
       );
       category['image'] = {
         secure_url: imageResult.secure_url,
