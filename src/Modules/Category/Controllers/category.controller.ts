@@ -9,6 +9,7 @@ import {
   Res,
   UseInterceptors,
   UploadedFile,
+  Put,
   //UploadedFiles,
 } from '@nestjs/common';
 import { CategoryService } from '../Services/category.service';
@@ -50,8 +51,8 @@ export class CategoryController {
     @UploadedFile() image?: Express.Multer.File,
     //@UploadedFiles() images: Express.Multer.File[]
   ) {
-    console.log(createCategoryDto);
-    console.log(image);
+    // console.log(createCategoryDto);
+    // console.log(image);
     const result = await this.categoryService.create(
       createCategoryDto,
       loggedInUser,
@@ -65,21 +66,44 @@ export class CategoryController {
     return this.categoryService.findAll();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.categoryService.findOne(+id);
+  @Get('get-category/:id')
+  @Auth([SystemRoles.ADMIN,SystemRoles.USER])
+  async findOne(@Param('id') id: string, @Res() res: Response) {
+    const result = await  this.categoryService.getCategoryById(id);
+    return res.status(200).json(result);
   }
 
-  @Patch(':id')
-  update(
-    @Param('id') id: string,
-    @Body() updateCategoryDto: UpdateCategoryDto,
+  @Put('update/:categoryId')
+  @Auth([SystemRoles.ADMIN])
+  @UseInterceptors(
+    FileInterceptor(
+      'image',
+      UploadFileOptions({
+        path: 'Categories',
+        allowedFileTypes: ImageMimeTypes,
+      }),
+    ),
+  )
+  async update(
+    @Param('categoryId') categoryId: string,
+    @Body() { name }: { name: string },
+    @User() loggedInUser: IAuthUser,
+    @Res() res: Response,
+    @UploadedFile() image?: Express.Multer.File,
   ) {
-    return this.categoryService.update(+id, updateCategoryDto);
+
+    const result = await this.categoryService.updateCategory({
+      name,
+      categoryId,
+      loggedInUser,
+      image,
+    });
+
+    return res.status(200).json(result);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.categoryService.remove(+id);
-  }
+  // @Delete(':id')
+  // remove(@Param('id') id: string) {
+  //   return this.categoryService.remove(+id);
+  // }
 }

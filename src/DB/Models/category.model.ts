@@ -33,6 +33,11 @@ export class Category {
 
   @Prop({type : String })
   folderId: string;
+
+
+  //updatedBy
+  @Prop({ type: Types.ObjectId, ref: User.name })
+  updatedBy: Types.ObjectId;
 }
 
 //creating the actual mongoose schema
