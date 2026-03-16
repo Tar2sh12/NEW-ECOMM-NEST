@@ -43,6 +43,10 @@ export class Category {
 //creating the actual mongoose schema
 const CategorySchema = SchemaFactory.createForClass(Category);
 
+// CategorySchema.pre('findOneAndDelete', async function () {
+  
+// });
+
 export const CategoryModel = MongooseModule.forFeature([
   { name: Category.name, schema: CategorySchema },
 ]);
