@@ -65,7 +65,7 @@ export class ProductService {
 
     productObject['folderId'] = folderId;
 
-    console.log(productObject);
+    //console.log(productObject);
     
 
     return await this.productRepository.create(productObject);

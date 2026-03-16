@@ -63,8 +63,8 @@ export class Product {
 
   @Prop({
     type: Number,
-    function() {
-      return this.basePrice - (this.basePrice * (this.discount || 0)) / 100;
+    default:function() {
+      return this.basePrice - ((this.basePrice * (this.discount || 0))/ 100) ;
     },
   })
   finalPrice: number;
