@@ -3,7 +3,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
-import { AuthModule,CategoryModule ,ProductModule,SubCategoryModule} from './Modules';
+import { AuthModule,CategoryModule ,ProductModule,SubCategoryModule,BrandModule} from './Modules';
 import { GlobalModule } from './global.module';
 @Module({
   imports: [
@@ -15,7 +15,8 @@ import { GlobalModule } from './global.module';
     CategoryModule,
     SubCategoryModule,
     GlobalModule,
-    ProductModule
+    ProductModule,
+    BrandModule
   ],
   controllers: [AppController],
   providers: [AppService],
