@@ -3,6 +3,7 @@ import { HydratedDocument, Types, Document } from 'mongoose';
 import slugify from 'slugify';
 import { User } from './user.model';
 import { Category } from './category.model';
+import { DiscountType } from 'src/Common/Types';
 export interface IProductImage {
   public_id: string;
   secure_url: string;
@@ -58,13 +59,21 @@ export class Product {
   @Prop({ type: Number, required: true })
   basePrice: number;
 
-  @Prop({ type: Number, min: 0, max: 100 })
+  @Prop({ type: Number })
   discount: number;
+
+  @Prop({ type: String, enum: Object.values(DiscountType), default : DiscountType.PERCENTAGE })
+  discountType: string;
 
   @Prop({
     type: Number,
-    default:function() {
-      return this.basePrice - ((this.basePrice * (this.discount || 0))/ 100) ;
+    default: function () {
+      if(this.discountType === DiscountType.PERCENTAGE){
+        return this.basePrice - (this.basePrice * (this.discount || 0)) / 100;
+      }
+      else if(this.discountType === DiscountType.AMOUNT){
+        return this.basePrice - (this.discount || 0);
+      }
     },
   })
   finalPrice: number;

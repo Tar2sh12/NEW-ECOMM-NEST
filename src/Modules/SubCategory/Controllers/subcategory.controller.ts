@@ -12,9 +12,9 @@ import {
   Put,
   //UploadedFiles,
 } from '@nestjs/common';
-import { CategoryService } from '../Services/category.service';
-import { CreateCategoryDto } from '../dto/create-category.dto';
-import { UpdateCategoryDto } from '../dto/update-category.dto';
+import {  SubCategoryService } from '../Services/subcategory.service';
+import { CreateSubCategoryDto } from '../dto/create-subcategory.dto';
+import { UpdateSubCategoryDto } from '../dto/update-subcategory.dto';
 import { User } from 'src/Common/Decorators/User-data.custom.decorator';
 import { IAuthUser, SystemRoles } from 'src/Common/Types';
 import { Auth } from 'src/Common/Guards';
@@ -27,9 +27,9 @@ import {
 import { UploadFileOptions } from 'src/Common/Utils';
 import { ImageMimeTypes } from 'src/Common/Constants/constants';
 
-@Controller('category')
-export class CategoryController {
-  constructor(private readonly categoryService: CategoryService) {}
+@Controller('subcategory')
+export class SubCategoryController {
+  constructor(private readonly subcategoryService: SubCategoryService) {}
 
   @Post('create')
   @Auth([SystemRoles.ADMIN])
@@ -37,7 +37,7 @@ export class CategoryController {
     FileInterceptor(
       'image',
       UploadFileOptions({
-        path: 'Categories',
+        path: 'SubCategories',
         allowedFileTypes: ImageMimeTypes,
       }),
     ),
@@ -45,7 +45,7 @@ export class CategoryController {
   //@UseInterceptors(FilesInterceptor('image', 2,UploadFileOptions({path:'Categories', allowedFileTypes:ImageMimeTypes})))
   //@UseInterceptors(FileFieldsInterceptor([{name:"image",maxCount:2}],UploadFileOptions({path:'Categories', allowedFileTypes:ImageMimeTypes})))
   async create(
-    @Body() createCategoryDto: CreateCategoryDto,
+    @Body() createSubCategoryDto: CreateSubCategoryDto,
     @User() loggedInUser: IAuthUser,
     @Res() res: Response,
     @UploadedFile() image?: Express.Multer.File,
@@ -53,8 +53,8 @@ export class CategoryController {
   ) {
     // console.log(createCategoryDto);
     // console.log(image);
-    const result = await this.categoryService.create(
-      createCategoryDto,
+    const result = await this.subcategoryService.create(
+      createSubCategoryDto,
       loggedInUser,
       image,
     );
@@ -63,37 +63,37 @@ export class CategoryController {
 
   @Get()
   findAll() {
-    return this.categoryService.findAll();
+    return this.subcategoryService.findAll();
   }
 
-  @Get('get-category/:id')
+  @Get('get-subcategory/:id')
   @Auth([SystemRoles.ADMIN, SystemRoles.USER])
   async findOne(@Param('id') id: string, @Res() res: Response) {
-    const result = await this.categoryService.getCategoryById(id);
+    const result = await this.subcategoryService.getSubCategoryById(id);
     return res.status(200).json(result);
   }
 
-  @Put('update/:categoryId')
+  @Put('update/:subcategoryId')
   @Auth([SystemRoles.ADMIN])
   @UseInterceptors(
     FileInterceptor(
       'image',
       UploadFileOptions({
-        path: 'Categories',
+        path: 'SubCategories',
         allowedFileTypes: ImageMimeTypes,
       }),
     ),
   )
   async update(
-    @Param('categoryId') categoryId: string,
+    @Param('subcategoryId') subcategoryId: string,
     @Body() { name }: { name: string },
     @User() loggedInUser: IAuthUser,
     @Res() res: Response,
     @UploadedFile() image?: Express.Multer.File,
   ) {
-    const result = await this.categoryService.updateCategory({
+    const result = await this.subcategoryService.updateSubCategory({
       name,
-      categoryId,
+      subcategoryId: subcategoryId,
       loggedInUser,
       image,
     });
@@ -101,9 +101,9 @@ export class CategoryController {
     return res.status(200).json(result);
   }
 
-  @Delete('delete-category/:id')
-  @Auth([SystemRoles.ADMIN])
-  remove(@Param('id') id: string) {
-    return this.categoryService.deleteCategoryById(id);
-  }
+  // @Delete('delete-subcategory/:id')
+  // @Auth([SystemRoles.ADMIN])
+  // remove(@Param('id') id: string) {
+  //   return this.subcategoryService.deleteSubCategoryById(id);
+  // }
 }

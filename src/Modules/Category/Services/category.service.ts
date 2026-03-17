@@ -115,7 +115,7 @@ export class CategoryService {
     return updatedCategory;
   }
 
-  // remove(id: number) {
-  //   return `This action removes a #${id} category`;
-  // }
+  async deleteCategoryById(id: string) {
+    return await this.categoryRepository.deleteCategoryById(id);
+  }
 }

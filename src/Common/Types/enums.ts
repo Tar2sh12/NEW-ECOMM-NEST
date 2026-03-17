@@ -12,3 +12,8 @@ export enum OTPTypes{
    CONFIRMATION= 'confirmation',
    RESET_PASSWORD= 'reset_password',
 }
+
+export const DiscountType = {
+  PERCENTAGE: "Percentage",
+  AMOUNT: "Amount",
+};

@@ -34,6 +34,13 @@ export class SubCategory {
 
   @Prop({ type: Object })
   image: object;
+
+  @Prop({ type: String })
+  folderId: string;
+
+  //updatedBy
+  @Prop({ type: Types.ObjectId, ref: User.name })
+  updatedBy: Types.ObjectId;
 }
 
 //creating the actual mongoose schema
