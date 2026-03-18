@@ -56,10 +56,7 @@ export abstract class BaseService<TDocument extends Document> {
     .populateFields()
     .pagination()
     .sort()
-    
     const finalResult = await result.execute();
-    // console.log(finalResult);
-    
     return finalResult;
   }
 

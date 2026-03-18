@@ -9,6 +9,7 @@ import {
   UseInterceptors,
   Res,
   UploadedFile,
+  Query,
 } from '@nestjs/common';
 import { BrandService } from '../Service/brand.service';
 import { CreateBrandDto } from '../dto/create-brand.dto';
@@ -51,9 +52,10 @@ export class BrandController {
     return res.status(201).json(result);
   }
 
-  @Get()
-  findAll() {
-    return this.brandService.findAll();
+  @Get('get-all-brands')
+  async findAll(@Query() query: any, @Res() res: Response) {
+    const result = await this.brandService.findAll(query);
+    return res.status(200).json(result);
   }
 
   @Get('get-brand/:id')
@@ -62,10 +64,10 @@ export class BrandController {
     return res.status(200).json(result);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateBrandDto: UpdateBrandDto) {
-    return this.brandService.update(+id, updateBrandDto);
-  }
+  // @Patch(':id')
+  // async update(@Param('id') id: string, @Body() updateBrandDto: UpdateBrandDto, @Res() res: Response) {
+  //   return this.brandService.update(+id, updateBrandDto);
+  // }
 
   @Delete('delete-brand/:id')
   async remove(@Param('id') id: string, @Res() res: Response) {

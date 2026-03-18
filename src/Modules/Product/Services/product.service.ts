@@ -97,8 +97,9 @@ export class ProductService {
     return await this.productRepository.create(productObject);
   }
 
-  findAll() {
-    return `This action returns all product`;
+  async findAll(query: any) {
+    const result = await this.productRepository.findByAggregate([], query);
+    return result;
   }
 
   async findOne(id: string) {

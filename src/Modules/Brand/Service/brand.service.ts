@@ -80,8 +80,9 @@ export class BrandService {
     return result;
   }
 
-  findAll() {
-    return `This action returns all brand`;
+  async findAll(query : any) {
+    const result = await this.brandRepository.findByAggregate([], query);
+    return result;
   }
 
   async getBrandById(id: string) {

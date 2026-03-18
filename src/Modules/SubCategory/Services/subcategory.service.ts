@@ -64,8 +64,8 @@ export class SubCategoryService {
     return await this.subCategoryRepository.create(subcategory);
   }
 
-  findAll() {
-    return `This action returns all subcategories`;
+  async findAll(query: any) {
+    return await this.subCategoryRepository.findByAggregate([], query);
   }
 
   async getSubCategoryById(id: string) {

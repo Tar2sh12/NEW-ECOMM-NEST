@@ -10,6 +10,7 @@ import {
   UploadedFile,
   Put,
   Delete,
+  Query,
   //UploadedFiles,
 } from '@nestjs/common';
 import {  SubCategoryService } from '../Services/subcategory.service';
@@ -56,9 +57,10 @@ export class SubCategoryController {
     return res.status(201).json(result);
   }
 
-  @Get()
-  findAll() {
-    return this.subcategoryService.findAll();
+  @Get('get-all-subcategories')
+  async findAll(@Query() query: any, @Res() res: Response) {
+    const result = await this.subcategoryService.findAll(query);
+    return res.status(200).json(result);
   }
 
   @Get('get-subcategory/:id')

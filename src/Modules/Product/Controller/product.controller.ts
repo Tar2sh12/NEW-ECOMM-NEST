@@ -9,6 +9,7 @@ import {
   UseInterceptors,
   UploadedFiles,
   Res,
+  Query,
 } from '@nestjs/common';
 import { ProductService } from '../Services/product.service';
 import { CreateProductDto } from '../dto/create-product.dto';
@@ -42,10 +43,11 @@ export class ProductController {
     return this.productService.create({ createProductDto, authUser, images });
   }
 
-  // @Get()
-  // findAll() {
-  //   return this.productService.findAll();
-  // }
+  @Get('get-all-products')
+  async findAll(@Query() query: any, @Res() res: Response) {
+    const result = await this.productService.findAll(query);
+    return res.status(200).json(result);
+  }
 
   @Get('get-product/:id')
   async findOne(@Param('id') id: string, @Res() res: Response) {
