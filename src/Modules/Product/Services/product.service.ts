@@ -10,6 +10,7 @@ import { ProductRepository } from 'src/DB/Repositories/product.repository';
 import { CloudUploadFilesService } from 'src/Common/Services';
 import { CategoryService } from 'src/Modules/Category/Services/category.service';
 import { nanoid } from 'nanoid';
+import { BrandRepository, SubCategoryRepository } from 'src/DB/Repositories';
 
 export interface CreateProductServiceParams {
   createProductDto: CreateProductDto;
@@ -23,6 +24,8 @@ export class ProductService {
     private readonly productRepository: ProductRepository,
     private readonly cloudUploadFilesService: CloudUploadFilesService,
     private readonly categoryService: CategoryService,
+    private readonly subcategoryRepository: SubCategoryRepository,
+    private readonly brandRepository: BrandRepository,
   ) {}
 
   async create({
@@ -31,13 +34,35 @@ export class ProductService {
     images,
   }: CreateProductServiceParams) {
     const addedBy = authUser.user._id;
-    const { title, description, basePrice, discount, stock, categoryId } =
-      createProductDto;
+    const {
+      title,
+      description,
+      basePrice,
+      discount,
+      stock,
+      categoryId,
+      subcategoryId,
+      brandId,
+    } = createProductDto;
 
     //check if the category exists
     const category = await this.categoryService.getCategoryById(categoryId);
     if (!category) {
       throw new NotFoundException('Category not found');
+    }
+
+    const isSubcategoryExists = await this.subcategoryRepository.findOne({
+      filters: { _id: createProductDto.subcategoryId },
+    });
+    if (!isSubcategoryExists) {
+      throw new NotFoundException('Subcategory not found');
+    }
+
+    const isBrandExists = await this.brandRepository.findOne({
+      filters: { _id: createProductDto.brandId },
+    });
+    if (!isBrandExists) {
+      throw new NotFoundException('Brand not found');
     }
 
     const productObject = {
@@ -47,6 +72,8 @@ export class ProductService {
       discount,
       stock,
       categoryId: category._id,
+      subcategoryId: isSubcategoryExists._id,
+      brandId: isBrandExists._id,
       addedBy,
     };
 
@@ -54,7 +81,7 @@ export class ProductService {
       throw new BadRequestException('At least one product image is required');
 
     const folderId = nanoid(4);
-    const folderUrl = `${process.env.CLOUDINARY_UPLOADS_FOLDER}/Categories/${category.folderId}/Products/${folderId}`;
+    const folderUrl = `${process.env.CLOUDINARY_UPLOADS_FOLDER}/Categories/${category.folderId}/SubCategories/${isSubcategoryExists.folderId}/Brands/${isBrandExists.folderId}/Products/${folderId}`;
     const paths = images.map((image) => image.path);
     productObject['images'] = await this.cloudUploadFilesService.uploadFiles(
       paths,
@@ -66,7 +93,6 @@ export class ProductService {
     productObject['folderId'] = folderId;
 
     //console.log(productObject);
-    
 
     return await this.productRepository.create(productObject);
   }
@@ -75,15 +101,23 @@ export class ProductService {
     return `This action returns all product`;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} product`;
+  async findOne(id: string) {
+    return await this.productRepository.findOne({
+      filters: { _id: id },
+      populateArray: [
+        { path: 'categoryId', select: '_id name folderId' },
+        { path: 'subcategoryId', select: '_id name folderId' },
+        { path: 'brandId', select: '_id name folderId' },
+      ],
+    });
   }
 
   update(id: number, updateProductDto: UpdateProductDto) {
     return `This action updates a #${id} product`;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} product`;
+  async deleteProductById(id: string) {
+    const result = await this.productRepository.deleteProductById(id);
+    return result;
   }
 }

@@ -3,7 +3,7 @@ import { HydratedDocument, Types, Document } from 'mongoose';
 import { User } from './user.model';
 import slugify from 'slugify';
 
-@Schema()
+@Schema({ timestamps: true })
 export class Category {
   @Prop({
     type: String,
@@ -31,9 +31,8 @@ export class Category {
   @Prop({ type: Object })
   image: object;
 
-  @Prop({type : String })
+  @Prop({ type: String })
   folderId: string;
-
 
   //updatedBy
   @Prop({ type: Types.ObjectId, ref: User.name })
@@ -42,7 +41,6 @@ export class Category {
 
 //creating the actual mongoose schema
 const CategorySchema = SchemaFactory.createForClass(Category);
-
 
 export const CategoryModel = MongooseModule.forFeature([
   { name: Category.name, schema: CategorySchema },

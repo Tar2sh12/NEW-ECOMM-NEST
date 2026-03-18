@@ -1,4 +1,3 @@
-
 import { MongooseModule, Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Types, Document } from 'mongoose';
 import slugify from 'slugify';
@@ -6,7 +5,7 @@ import { User } from './user.model';
 import { Category } from './category.model';
 import { SubCategory } from './sub-category.model';
 
-@Schema()
+@Schema({ timestamps: true })
 export class Brand {
   @Prop({
     type: String,

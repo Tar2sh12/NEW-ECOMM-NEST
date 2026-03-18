@@ -4,11 +4,13 @@ import slugify from 'slugify';
 import { User } from './user.model';
 import { Category } from './category.model';
 import { DiscountType } from 'src/Common/Types';
+import { SubCategory } from './sub-category.model';
+import { Brand } from './brand.model';
 export interface IProductImage {
   public_id: string;
   secure_url: string;
 }
-@Schema()
+@Schema({ timestamps: true })
 export class Product {
   @Prop({
     type: String,
@@ -53,6 +55,13 @@ export class Product {
   @Prop({ type: Types.ObjectId, ref: Category.name })
   categoryId: Types.ObjectId;
 
+  //subcategoryId and brandId
+  @Prop({ type: Types.ObjectId, ref: SubCategory.name })
+  subcategoryId: Types.ObjectId;
+
+  @Prop({ type: Types.ObjectId, ref: Brand.name })
+  brandId: Types.ObjectId;
+
   //! (don't forget) adding the reference fields for subcategory and brand when they are created
 
   //? (numbers) basePrice , discount , finalPrice , stock , overAllRating
@@ -62,16 +71,19 @@ export class Product {
   @Prop({ type: Number })
   discount: number;
 
-  @Prop({ type: String, enum: Object.values(DiscountType), default : DiscountType.PERCENTAGE })
+  @Prop({
+    type: String,
+    enum: Object.values(DiscountType),
+    default: DiscountType.PERCENTAGE,
+  })
   discountType: string;
 
   @Prop({
     type: Number,
     default: function () {
-      if(this.discountType === DiscountType.PERCENTAGE){
+      if (this.discountType === DiscountType.PERCENTAGE) {
         return this.basePrice - (this.basePrice * (this.discount || 0)) / 100;
-      }
-      else if(this.discountType === DiscountType.AMOUNT){
+      } else if (this.discountType === DiscountType.AMOUNT) {
         return this.basePrice - (this.discount || 0);
       }
     },

@@ -1,7 +1,7 @@
 import { MongooseModule, Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument ,Document} from 'mongoose';
+import { HydratedDocument, Document } from 'mongoose';
 import { GenderEnum, SystemRoles } from 'src/Common/Types';
-import { Hash,encrypt } from 'src/Common/Security';
+import { Hash, encrypt } from 'src/Common/Security';
 @Schema({ timestamps: true })
 export class User {
   @Prop({
@@ -22,7 +22,7 @@ export class User {
     required: true,
     type: String,
     //unique: true,
-    index:{name:"email_unique_idx", unique: true},
+    index: { name: 'email_unique_idx', unique: true },
   })
   email: string;
   @Prop({
@@ -82,8 +82,8 @@ userSchema.pre('save', function () {
   if (changes && changes.password) {
     this.password = Hash(changes.password, +process.env.SALT_ROUNDS);
   }
-  if(changes && changes.phone){
-    this.phone=encrypt(changes.phone,process.env.SECRET_ENCRYPTION_KEY);
+  if (changes && changes.phone) {
+    this.phone = encrypt(changes.phone, process.env.SECRET_ENCRYPTION_KEY);
   }
 });
 //creating the model

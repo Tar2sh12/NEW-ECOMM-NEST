@@ -4,7 +4,7 @@ import { User } from './user.model';
 import slugify from 'slugify';
 import { Category } from './category.model';
 
-@Schema()
+@Schema({ timestamps: true })
 export class SubCategory {
   @Prop({
     type: String,

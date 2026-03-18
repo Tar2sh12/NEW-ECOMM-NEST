@@ -89,4 +89,14 @@ export class CreateProductDto {
   @Type(() => Types.ObjectId)
   @IsNotEmpty()
   categoryId: string;
+
+   @IsMongoId()
+  @Type(() => Types.ObjectId)
+  @IsNotEmpty()
+  subcategoryId: string;
+
+   @IsMongoId()
+  @Type(() => Types.ObjectId)
+  @IsNotEmpty()
+  brandId: string;
 }

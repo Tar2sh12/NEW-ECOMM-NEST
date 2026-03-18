@@ -115,7 +115,7 @@ export class SubCategoryService {
     return updatedSubCategory;
   }
 
-  // async deleteSubCategoryById(id: string) {
-  //   return await this.subCategoryRepository.deleteSubCategoryById(id);
-  // }
+  async deleteSubCategoryById(id: string) {
+    return await this.subCategoryRepository.deleteSubCategoryById(id);
+  }
 }

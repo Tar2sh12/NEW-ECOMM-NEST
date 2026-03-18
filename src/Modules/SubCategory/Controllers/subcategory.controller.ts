@@ -3,18 +3,18 @@ import {
   Get,
   Post,
   Body,
-  Patch,
+  // Patch,
   Param,
-  Delete,
   Res,
   UseInterceptors,
   UploadedFile,
   Put,
+  Delete,
   //UploadedFiles,
 } from '@nestjs/common';
 import {  SubCategoryService } from '../Services/subcategory.service';
 import { CreateSubCategoryDto } from '../dto/create-subcategory.dto';
-import { UpdateSubCategoryDto } from '../dto/update-subcategory.dto';
+// import { UpdateSubCategoryDto } from '../dto/update-subcategory.dto';
 import { User } from 'src/Common/Decorators/User-data.custom.decorator';
 import { IAuthUser, SystemRoles } from 'src/Common/Types';
 import { Auth } from 'src/Common/Guards';
@@ -42,17 +42,12 @@ export class SubCategoryController {
       }),
     ),
   )
-  //@UseInterceptors(FilesInterceptor('image', 2,UploadFileOptions({path:'Categories', allowedFileTypes:ImageMimeTypes})))
-  //@UseInterceptors(FileFieldsInterceptor([{name:"image",maxCount:2}],UploadFileOptions({path:'Categories', allowedFileTypes:ImageMimeTypes})))
   async create(
     @Body() createSubCategoryDto: CreateSubCategoryDto,
     @User() loggedInUser: IAuthUser,
     @Res() res: Response,
     @UploadedFile() image?: Express.Multer.File,
-    //@UploadedFiles() images: Express.Multer.File[]
   ) {
-    // console.log(createCategoryDto);
-    // console.log(image);
     const result = await this.subcategoryService.create(
       createSubCategoryDto,
       loggedInUser,
@@ -101,9 +96,10 @@ export class SubCategoryController {
     return res.status(200).json(result);
   }
 
-  // @Delete('delete-subcategory/:id')
-  // @Auth([SystemRoles.ADMIN])
-  // remove(@Param('id') id: string) {
-  //   return this.subcategoryService.deleteSubCategoryById(id);
-  // }
+  @Delete('delete-subcategory/:id')
+  @Auth([SystemRoles.ADMIN])
+  async remove(@Param('id') id: string, @Res() res: Response) {
+    const result = await this.subcategoryService.deleteSubCategoryById(id);
+    return res.status(200).json(result);
+  }
 }

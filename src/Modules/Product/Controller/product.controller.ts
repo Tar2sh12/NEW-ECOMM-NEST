@@ -8,6 +8,7 @@ import {
   Delete,
   UseInterceptors,
   UploadedFiles,
+  Res,
 } from '@nestjs/common';
 import { ProductService } from '../Services/product.service';
 import { CreateProductDto } from '../dto/create-product.dto';
@@ -18,6 +19,7 @@ import { FilesInterceptor } from '@nestjs/platform-express';
 import { UploadFileOptions } from 'src/Common/Utils';
 import { ImageMimeTypes } from 'src/Common/Constants/constants';
 import { User } from 'src/Common/Decorators/User-data.custom.decorator';
+import { Response } from 'express';
 
 @Controller('product')
 export class ProductController {
@@ -40,23 +42,26 @@ export class ProductController {
     return this.productService.create({ createProductDto, authUser, images });
   }
 
-  @Get()
-  findAll() {
-    return this.productService.findAll();
+  // @Get()
+  // findAll() {
+  //   return this.productService.findAll();
+  // }
+
+  @Get('get-product/:id')
+  async findOne(@Param('id') id: string, @Res() res: Response) {
+    const result = await this.productService.findOne(id);
+    return res.status(200).json(result);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.productService.findOne(+id);
-  }
+  // @Patch(':id')
+  // update(@Param('id') id: string, @Body() updateProductDto: UpdateProductDto) {
+  //   return this.productService.update(+id, updateProductDto);
+  // }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateProductDto: UpdateProductDto) {
-    return this.productService.update(+id, updateProductDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.productService.remove(+id);
+  @Delete('delete-product/:id')
+  @Auth([SystemRoles.ADMIN])
+  async remove(@Param('id') id: string, @Res() res: Response) {
+    const result = await this.productService.deleteProductById(id);
+    return res.status(200).json(result);
   }
 }
