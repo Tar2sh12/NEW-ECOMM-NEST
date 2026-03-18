@@ -56,8 +56,9 @@ export class CategoryService {
     return await this.categoryRepository.create(category);
   }
 
-  findAll() {
-    return `This action returns all category`;
+  async findAll(query:any) {
+    const result = await this.categoryRepository.findByAggregate([], query);
+    return result;
   }
 
   async getCategoryById(id: string) {

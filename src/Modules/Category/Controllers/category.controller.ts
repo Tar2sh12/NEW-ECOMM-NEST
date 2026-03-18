@@ -10,6 +10,7 @@ import {
   UseInterceptors,
   UploadedFile,
   Put,
+  Query,
   //UploadedFiles,
 } from '@nestjs/common';
 import { CategoryService } from '../Services/category.service';
@@ -61,9 +62,13 @@ export class CategoryController {
     return res.status(201).json(result);
   }
 
-  @Get()
-  findAll() {
-    return this.categoryService.findAll();
+  @Get('get-all-categories')
+  async findAll(
+    @Res() res: Response,
+    @Query() query: any,
+  ) {
+    const result =await  this.categoryService.findAll(query);
+    return res.status(200).json(result);
   }
 
   @Get('get-category/:id')

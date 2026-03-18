@@ -6,6 +6,9 @@ import {
   UpdateQuery,
   DeleteResult,
 } from 'mongoose';
+
+import { ApiAggregateFeature } from 'src/Common/Utils';
+
 interface IFindOneOption<TDocument> {
   filters: QueryFilter<TDocument>;
   select?: string;
@@ -45,6 +48,19 @@ export abstract class BaseService<TDocument extends Document> {
     populateArray = [],
   }: IFindManyOption<TDocument>): Promise<TDocument[]> {
     return await this.model.find(filters, select).populate(populateArray);
+  }
+
+  async findByAggregate(pipeline: any[] , query: any): Promise<any[]> {
+    let aggregateResult ;
+    const result = new ApiAggregateFeature(this.model, query , pipeline).filters()
+    .populateFields()
+    .pagination()
+    .sort()
+    
+    const finalResult = await result.execute();
+    // console.log(finalResult);
+    
+    return finalResult;
   }
 
   async updateOne(
