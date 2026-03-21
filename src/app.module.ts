@@ -3,7 +3,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
-import { AuthModule,CategoryModule ,ProductModule,SubCategoryModule,BrandModule} from './Modules';
+import { AuthModule,CategoryModule ,ProductModule,SubCategoryModule,BrandModule, CartModule} from './Modules';
 import { GlobalModule } from './global.module';
 import * as aggregatePaginate from 'mongoose-aggregate-paginate-v2';
 @Module({
@@ -18,11 +18,12 @@ import * as aggregatePaginate from 'mongoose-aggregate-paginate-v2';
       },
     }),
     AuthModule,
+    GlobalModule,
     CategoryModule,
     SubCategoryModule,
-    GlobalModule,
+    BrandModule,
     ProductModule,
-    BrandModule
+    CartModule
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -51,7 +51,6 @@ export abstract class BaseService<TDocument extends Document> {
   }
 
   async findByAggregate(pipeline: any[] , query: any): Promise<any[]> {
-    let aggregateResult ;
     const result = new ApiAggregateFeature(this.model, query , pipeline).filters()
     .populateFields()
     .pagination()

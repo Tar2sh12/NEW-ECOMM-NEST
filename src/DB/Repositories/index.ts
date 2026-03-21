@@ -5,3 +5,4 @@ export * from "./otp.repository";
 export * from "./revoked-tokens.repository";
 export * from "./product.repository";
 export * from "./brand.repository";
+export * from "./cart.repository";
