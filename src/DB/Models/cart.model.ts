@@ -28,8 +28,8 @@ export class Cart {
 
 const cartSchema = SchemaFactory.createForClass(Cart);
 
-cartSchema.pre('save', async function () {
-  this.subTotal = this.products.reduce((acc, item) => acc + item.finalPrice, 0);
+cartSchema.pre('save', async function () { // this save hook works with both create and save operations 
+  this.subTotal = this.products.reduce((acc, item) => acc + item.finalPrice * item.quantity, 0);
 });
 
 export const CartModel = MongooseModule.forFeature([{ name: Cart.name, schema: cartSchema }]);

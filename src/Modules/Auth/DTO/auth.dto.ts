@@ -16,65 +16,56 @@ export class SignUpDto {
   @IsNotEmpty()
   email: string;
 
-
   @IsNotEmpty()
   @IsStrongPassword()
   password: string;
-
 
   @IsNotEmpty()
   @IsString()
   @MinLength(3)
   firstName: string;
 
-
   @IsNotEmpty()
   @IsString()
   @MinLength(3)
   lastName: string;
 
-
-   @IsNotEmpty()
+  @IsNotEmpty()
   @IsString()
   @MinLength(3)
   phone: string;
+
   @IsNotEmpty()
   @IsNumber()
   age: number;
-
 
   @IsString()
   @IsNotEmpty()
   @IsEnum(SystemRoles)
   role: SystemRoles;
 
-
   @IsString()
   @IsNotEmpty()
   @IsEnum(GenderEnum)
   gender: GenderEnum;
 
-
   @IsDate()
-  @Type(() => Date)//used to convert string to date
+  @Type(() => Date) //used to convert string to date
   @IsNotEmpty()
   DOB: Date;
 }
-
 
 export class LoginBodyDto {
   @IsEmail()
   @IsNotEmpty()
   email: string;
 
-
   @IsNotEmpty()
   @IsStrongPassword()
   password: string;
-
 }
 
-export class ConfirmationEmailDto{
+export class ConfirmationEmailDto {
   @IsEmail()
   @IsNotEmpty()
   email: string;
