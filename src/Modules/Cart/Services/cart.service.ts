@@ -135,4 +135,19 @@ export class CartService {
 
     return await this.cartRepository.save(existingCartItem);
   }
+
+
+  async getMyCart(authUser: IAuthUser) {
+    const userId = authUser.user._id;
+    const cart = await this.cartRepository.findOne({
+      filters: { userId },
+      populateArray: [
+        {
+          path: 'products.productId',
+          select: '_id name folderId',
+        },
+      ],
+    });
+    return cart;
+  }
 }

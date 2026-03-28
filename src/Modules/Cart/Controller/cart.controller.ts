@@ -1,9 +1,11 @@
-import { Body, Controller, Param, Patch, Post, Put } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post, Put, Res, UseInterceptors } from '@nestjs/common';
 import { CartService } from '../Services/cart.service';
 import { User } from 'src/Common/Decorators/User-data.custom.decorator';
 import { IAuthUser, SystemRoles } from 'src/Common/Types';
 import { Auth } from 'src/Common/Guards';
 import { AddToCartDto } from '../dto/addToCart.dto';
+import { ResponseInterceptor } from 'src/Interceptors';
+import { Response } from 'express';
 
 @Controller('cart')
 export class CartController {
@@ -46,4 +48,16 @@ export class CartController {
     );
     return result;
   }
+
+
+   @Get('get-my-cart')
+  @Auth([SystemRoles.USER])
+  @UseInterceptors(new ResponseInterceptor('Cart fetched successfully'))
+  async getMyCart(
+    @User() loggedInUser: IAuthUser,
+  ) {
+    const result = await this.cartService.getMyCart(loggedInUser);
+    return result;
+  }
 }
+
