@@ -1,0 +1,37 @@
+<html>
+  <head>
+    <script src="https://cdn.socket.io/4.3.2/socket.io.min.js" integrity="sha384-KAZ4DtjNhLChOB/hxXuKqhMLYvx3b5MlT55xPEiNmREKRzeEm+RVPlTnAn0ajQNs" crossorigin="anonymous"></script>
+    <script>
+      // Establish socket connection
+      const socket = io('http://localhost:4000',{
+        auth:{
+            accesstoken:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTk1Yzg2MzUwMDdhYzRmNDM2OTRmMDIiLCJlbWFpbCI6Im1vaGFtYWQudC5zYWxhaEBnbWFpbC5jb20iLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3NzQ3NzI3NjYsImV4cCI6MTc3NDg1OTE2NiwianRpIjoiOWYwYWJkZDctNzlhZi00YzYzLTk4NjctOTUyZmQ3Zjg2YzY0In0.6evEuAHMPlzNY2MUCa0DaaualFV8jY3cn8yjWUQdHQk"
+        }
+      });
+
+      // for test sending event from front-end to back-end
+      // socket.emit('hello-from-fe' ,  ' Hello from front-end side ')
+      // socket.on('hello-from-be' , (data)=> console.log(data))
+
+      // for test 2
+      socket.emit('hello-fe', 'He;lo ======================================')
+      socket.on('hello-fe', (data)=>   console.log(data) )
+
+      // for test 3
+      // socket.emit('way-2', 'Hello from front-end side', 2, 3,3 )
+
+      // for async test
+      socket.emit('async-event', 'Hello from front-end side')
+      socket.on('async-event', (data)=>   console.log(data) )
+
+      // for the stock updates from back-end to front-end
+      socket.on('stock-updated' ,   (data)=>   console.log(data))
+
+      // for the socket exceptions from back-end to front-end
+      socket.on('socket-exception' , (data) => console.log(data))
+      
+    </script>
+  </head>
+
+  <body></body>
+</html>

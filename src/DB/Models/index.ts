@@ -6,3 +6,4 @@ export * from './revoked-tokens.model';
 export * from './product.model';
 export * from './brand.model';
 export * from './cart.model';
+export * from './address.model'

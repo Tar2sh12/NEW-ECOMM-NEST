@@ -14,7 +14,10 @@ import {
 import { OtpModel, RevokedTokensModel, UserModel } from 'src/DB/Models';
 import { TokenService } from 'src/Common/Services';
 import { JwtService } from '@nestjs/jwt';
-import { loggingMiddleware,LoggerMiddleware } from 'src/Common/Middlewares';
+import {
+  //loggingMiddleware,
+  LoggerMiddleware,
+} from 'src/Common/Middlewares';
 @Module({
   imports: [UserModel, OtpModel, RevokedTokensModel],
   controllers: [AuthController],

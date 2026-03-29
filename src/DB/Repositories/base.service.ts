@@ -5,6 +5,7 @@ import {
   Document,
   UpdateQuery,
   DeleteResult,
+  UpdateResult,
 } from 'mongoose';
 
 import { ApiAggregateFeature } from 'src/Common/Utils';
@@ -90,5 +91,10 @@ export abstract class BaseService<TDocument extends Document> {
     // );
 
     return await this.model.deleteMany(filters);
+  }
+
+
+  async updateMany({ filters, update }: { filters: QueryFilter<TDocument>; update: UpdateQuery<TDocument> }) : Promise<UpdateResult|null> {
+    return await this.model.updateMany(filters, update);
   }
 }
