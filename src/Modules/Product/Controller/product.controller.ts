@@ -19,7 +19,7 @@ import { IAuthUser, SystemRoles } from 'src/Common/Types';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { UploadFileOptions } from 'src/Common/Utils';
 import { ImageMimeTypes } from 'src/Common/Constants/constants';
-import { User } from 'src/Common/Decorators/User-data.custom.decorator';
+import { User } from 'src/Common/Decorators';
 import { Response } from 'express';
 
 @Controller('product')

@@ -19,7 +19,7 @@ import { Auth } from 'src/Common/Guards';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UploadFileOptions } from 'src/Common/Utils';
 import { ImageMimeTypes } from 'src/Common/Constants/constants';
-import { User } from 'src/Common/Decorators/User-data.custom.decorator';
+import { User } from 'src/Common/Decorators';
 import { Response } from 'express';
 
 @Controller('brand')

@@ -16,7 +16,7 @@ import {
 import { CategoryService } from '../Services/category.service';
 import { CreateCategoryDto } from '../dto/create-category.dto';
 import { UpdateCategoryDto } from '../dto/update-category.dto';
-import { User } from 'src/Common/Decorators/User-data.custom.decorator';
+import { User } from 'src/Common/Decorators';
 import { IAuthUser, SystemRoles } from 'src/Common/Types';
 import { Auth } from 'src/Common/Guards';
 import { Response } from 'express';

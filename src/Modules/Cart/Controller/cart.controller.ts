@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Param, Patch, Post, Put, Res, UseInterceptors } from '@nestjs/common';
 import { CartService } from '../Services/cart.service';
-import { User } from 'src/Common/Decorators/User-data.custom.decorator';
+import { User } from 'src/Common/Decorators';
 import { IAuthUser, SystemRoles } from 'src/Common/Types';
 import { Auth } from 'src/Common/Guards';
 import { AddToCartDto } from '../dto/addToCart.dto';

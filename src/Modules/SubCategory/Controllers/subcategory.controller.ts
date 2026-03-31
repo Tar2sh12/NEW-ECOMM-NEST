@@ -16,7 +16,7 @@ import {
 import {  SubCategoryService } from '../Services/subcategory.service';
 import { CreateSubCategoryDto } from '../dto/create-subcategory.dto';
 // import { UpdateSubCategoryDto } from '../dto/update-subcategory.dto';
-import { User } from 'src/Common/Decorators/User-data.custom.decorator';
+import { User } from 'src/Common/Decorators';
 import { IAuthUser, SystemRoles } from 'src/Common/Types';
 import { Auth } from 'src/Common/Guards';
 import { Response } from 'express';

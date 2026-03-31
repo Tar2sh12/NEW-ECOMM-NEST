@@ -7,7 +7,7 @@ import { CreateAddressDto } from '../dto/create-address.dto';
 import { UpdateAddressDto } from '../dto/update-address.dto';
 import { IAuthUser } from 'src/Common/Types';
 import axios from 'axios';
-import { AddressRepository } from 'src/DB/Repositories/address.repository';
+import { AddressRepository } from '../../../DB/Repositories';
 
 @Injectable()
 export class AddressService {

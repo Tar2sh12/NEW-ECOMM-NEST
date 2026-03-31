@@ -12,7 +12,7 @@ import { CreateAddressDto } from '../dto/create-address.dto';
 import { UpdateAddressDto } from '../dto/update-address.dto';
 import { Auth } from 'src/Common/Guards';
 import { IAuthUser, SystemRoles } from 'src/Common/Types';
-import { User } from 'src/Common/Decorators/User-data.custom.decorator';
+import { User } from 'src/Common/Decorators';
 import { ResponseInterceptor } from 'src/Interceptors';
 
 @Controller('address')

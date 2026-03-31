@@ -4,7 +4,7 @@ import { AuthService } from '../Services/auth.service';
 import { LoginBodyDto, SignUpDto, ConfirmationEmailDto } from '../dto/auth.dto';
 import { Auth } from 'src/Common/Guards';
 import { SystemRoles,IAuthUser } from 'src/Common/Types';
-import { User } from 'src/Common/Decorators/User-data.custom.decorator';
+import { User } from 'src/Common/Decorators';
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
