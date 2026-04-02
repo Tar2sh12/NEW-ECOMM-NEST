@@ -16,7 +16,7 @@ export class Order {
   subTotal: number;
 
   @Prop({ type: Number, required: true })
-  shippingFee: number;
+  shipingFee: number;
 
   @Prop({ type: Number, required: true })
   VAT: number;
@@ -46,7 +46,7 @@ export class Order {
   @Prop({ type: String })
   payment_intent: String;
 
-    @Prop({ type: String, required: true })
+  @Prop({ type: String, required: true })
   contactNumber: string;
 
   //IDs
@@ -78,14 +78,14 @@ export class Order {
       {
         productId: { type: Types.ObjectId, ref: Product.name },
         quantity: Number,
-        price: Number,
+        finalPrice: Number,
       },
     ],
   })
   products: {
     productId: Types.ObjectId;
     quantity: number;
-    price: number;
+    finalPrice: number;
   }[];
 }
 

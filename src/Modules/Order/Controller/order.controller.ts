@@ -2,14 +2,21 @@ import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/commo
 import { OrderService } from '../Services/order.service';
 import { CreateOrderDto } from '../dto/create-order.dto';
 import { UpdateOrderDto } from '../dto/update-order.dto';
+import { Auth } from 'src/Common/Guards';
+import { IAuthUser, SystemRoles } from 'src/Common/Types';
+import { User } from 'src/Common/Decorators';
 
 @Controller('order')
 export class OrderController {
   constructor(private readonly orderService: OrderService) {}
 
-  @Post()
-  async create(@Body() createOrderDto: CreateOrderDto) {
-    return await this.orderService.create(createOrderDto);
+  @Post('create')
+  @Auth([SystemRoles.USER])
+  async create(@Body() createOrderDto: CreateOrderDto,
+    @User() user: IAuthUser
+
+) {
+    return await this.orderService.create(createOrderDto,user);
   }
 
   @Get()

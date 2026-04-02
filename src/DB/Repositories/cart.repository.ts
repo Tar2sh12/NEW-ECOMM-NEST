@@ -12,13 +12,15 @@ export class CartRepository extends BaseService<CartType> {
     super(cartModel);
   }
 
-  async calculateTotalPrice(cartId: string): Promise<number> {
-    const cart = await this.cartModel.findById(cartId).populate('products.productId');
-    if (!cart) throw new BadRequestException('Cart not found');
+  async calculateTotalPrice(cart:CartType): Promise<number> {
     let subTotal =0;
+    //console.log(cart.products);
+    
     subTotal= cart.products.reduce((total, product) => {
-      return total + (product.productId['price'] * product.productId['quantity']);
+      return total + (product.finalPrice * product.quantity);
     }, 0);
+    //console.log(subTotal);
+    
     return subTotal;
   }
 

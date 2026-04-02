@@ -16,8 +16,8 @@ export class CouponRepository extends BaseService<CouponType> {
   async validateCoupon(
     couponCode: string,
     userId: Types.ObjectId,
-  ): Promise<boolean> {
-    const coupon = await this.couponModel.findOne({ code: couponCode });
+  ): Promise<{ message: string; status: boolean; coupon: CouponType }> {
+    const coupon = await this.couponModel.findOne({  couponCode });
     if (!coupon) throw new BadRequestException('Invalid coupon code');
     //check if coupon is enable
     const now = DateTime.now();
@@ -45,7 +45,11 @@ export class CouponRepository extends BaseService<CouponType> {
       throw new BadRequestException('coupon is not valid for you');
     }
 
-    return true;
+    return {
+      message: 'coupon is valid',
+      status: true,
+      coupon
+    };
   }
 
   applyCoupon(coupon: CouponType, subTotal: number): number {
@@ -54,9 +58,6 @@ export class CouponRepository extends BaseService<CouponType> {
     if (couponType == DiscountType.PERCENTAGE) {
       total = subTotal - (subTotal * couponAmount) / 100;
     } else if (couponType == DiscountType.AMOUNT) {
-      if (subTotal > couponAmount) {
-        return total;
-      }
       total = subTotal - couponAmount;
     }
     return total;
