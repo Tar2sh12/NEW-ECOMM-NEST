@@ -28,6 +28,8 @@ class UserCouponDto {
   @Min(1)
   maxCount: number;
 
+  usageCount: number = 0;
+
 
 }
 

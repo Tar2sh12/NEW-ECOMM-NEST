@@ -29,25 +29,25 @@ export enum CouponTypes {
   PERCENTAGE= "Percentage",
   AMOUNT="Amount",
 };
-export const paymentMethods={
-  Stripe:"stripe", // payment method cash or stripe hbd2 mn placed
-  Cash:"cash",
-  Paymob:"paymob",// => hbd2 mn pending 
+export enum paymentMethods{
+  Stripe="stripe", // payment method cash or stripe hbd2 mn placed
+  Cash="cash",// => hbd2 mn pending 
+  Paymob="paymob",// => hbd2 mn pending 
 }
-export const OrderStatus={
-  Pending:"pending",
-  Confirmed:"confirmed",
-  Delivered:"delivered",
-  Cancelled:"cancelled",
-  Placed:"placed",
-  Refunded:"refunded",
-  Returned:"returned", // l user rfd ystlm
-  Dropped:"dropped", // l user msh mwgod ashan ystlm
-  OnWay:"onway"
+export enum OrderStatus{
+  Pending="pending",
+  Confirmed="confirmed",
+  Delivered="delivered",
+  Cancelled="cancelled",
+  Placed="placed",
+  Refunded="refunded",
+  Returned="returned", // l user rfd ystlm
+  Dropped="dropped", // l user msh mwgod ashan ystlm
+  OnWay="onway"
 }
-export const ReviewStatus={
-  Pending:"pending",
-  Rejected:"rejected",
-  Approved:"approved",
+export enum ReviewStatus{
+  Pending="pending",
+  Rejected="rejected",
+  Approved="approved",
 }
 

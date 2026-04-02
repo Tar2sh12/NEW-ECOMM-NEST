@@ -7,8 +7,9 @@ import {
   DeleteResult,
   UpdateResult,
 } from 'mongoose';
+import { ReviewStatus } from 'src/Common/Types/enums';
 
-import { ApiAggregateFeature } from 'src/Common/Utils';
+import { ApiAggregateFeature, ApiFeatures } from 'src/Common/Utils';
 
 interface IFindOneOption<TDocument> {
   filters: QueryFilter<TDocument>;
@@ -51,13 +52,27 @@ export abstract class BaseService<TDocument extends Document> {
     return await this.model.find(filters, select).populate(populateArray);
   }
 
-  async findByAggregate(pipeline: any[] , query: any): Promise<any[]> {
-    const result = new ApiAggregateFeature(this.model, query , pipeline).filters()
-    .populateFields()
-    .pagination()
-    .sort()
+  async findByAggregate(pipeline: any[], query: any): Promise<any[]> {
+    const result = new ApiAggregateFeature(this.model, query, pipeline)
+      .filters()
+      .populateFields()
+      .pagination()
+      .sort();
     const finalResult = await result.execute();
     return finalResult;
+  }
+
+  async findByMongoosePaginate(
+    query: any,
+    populateArray: PopulateOptions[],
+    select: string,
+  ) {
+    const list = new ApiFeatures(this.model, query, populateArray,select)
+      .filters()
+      .sort()
+      .pagination()
+      .exec();
+    return list;
   }
 
   async updateOne(
@@ -70,7 +85,6 @@ export abstract class BaseService<TDocument extends Document> {
       });
     return await this.model.findOneAndUpdate(filters, update, { new: true });
   }
-
 
   async deleteOne({
     filters,
@@ -93,8 +107,13 @@ export abstract class BaseService<TDocument extends Document> {
     return await this.model.deleteMany(filters);
   }
 
-
-  async updateMany({ filters, update }: { filters: QueryFilter<TDocument>; update: UpdateQuery<TDocument> }) : Promise<UpdateResult|null> {
+  async updateMany({
+    filters,
+    update,
+  }: {
+    filters: QueryFilter<TDocument>;
+    update: UpdateQuery<TDocument>;
+  }): Promise<UpdateResult | null> {
     return await this.model.updateMany(filters, update);
   }
 }

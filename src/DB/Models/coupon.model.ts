@@ -30,7 +30,7 @@ export class Coupon {
     Users:{
         userId:Types.ObjectId,
         maxCount: number,
-
+        usageCount: number,
     }[];
 
     @Prop({ type: Boolean, default: false })

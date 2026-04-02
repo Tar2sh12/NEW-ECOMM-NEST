@@ -71,6 +71,9 @@ importers:
       mongoose-aggregate-paginate-v2:
         specifier: ^1.1.4
         version: 1.1.4
+      mongoose-paginate-v2:
+        specifier: ^1.9.4
+        version: 1.9.4(mongoose@9.1.5)
       multer:
         specifier: ^2.1.0
         version: 2.1.0
@@ -114,6 +117,9 @@ importers:
       '@types/jest':
         specifier: ^29.5.2
         version: 29.5.14
+      '@types/mongoose-paginate-v2':
+        specifier: ^1.6.5
+        version: 1.6.5(mongoose@9.1.5)
       '@types/node':
         specifier: ^20.3.1
         version: 20.19.30
@@ -753,6 +759,10 @@ packages:
 
   '@types/mime@1.3.5':
     resolution: {integrity: sha512-/pyBZWSLD2n0dcHE3hq8s8ZvcETHtEuF+3E7XVt0Ig2nvsVQXdghHVcEkIWjy9A0wKfTn97a/PSDYohKIlnP/w==}
+
+  '@types/mongoose-paginate-v2@1.6.5':
+    resolution: {integrity: sha512-OdnsqewLwCtZvExUHuL+KDVlZ6OdnzGcUdPpEqMRVKZ6mWy7fgnt1IkLSs8Zugv5cUTLVT46hjmL2OPWtml1Rw==}
+    deprecated: This is a stub types definition. mongoose-paginate-v2 provides its own type definitions, so you do not need this installed.
 
   '@types/ms@2.1.0':
     resolution: {integrity: sha512-GsCCIZDE/p3i96vtEqx+7dBUGXrc7zeSK3wwPHIaRThS+9OhWIXRqzs4d6k1SVU8g91DrNRWxWUGhp5KXQb2VA==}
@@ -2312,9 +2322,23 @@ packages:
     resolution: {integrity: sha512-CdQIar3wlS7g0H6JjSJIZzvzz05vFc+Xy9SosJmj46l3xIomgl3ZjDn/n4vDpEei9RBawgUk5zGTIP6fMKdMdA==}
     engines: {node: '>=4.0.0'}
 
+  mongoose-lean-virtuals@1.1.1:
+    resolution: {integrity: sha512-8chOqpVE3bcoWT2pIgcJeIZlXaOfQCavZgQZF4qytUtjRBqsNMyzUoR16qdw9XL2kC478N8iA8z0AA+NSS0d1A==}
+    engines: {node: '>=16.20.1'}
+    peerDependencies:
+      mongoose: '>=5.11.10'
+
+  mongoose-paginate-v2@1.9.4:
+    resolution: {integrity: sha512-0LOsVEQmjrbJKVDi/IvFEhIezmuRjUE4loGgslv57j9nK/NMC+mbKT0QnaPSPpib4lByKVBcy3VbDa1TvlHZjA==}
+    engines: {node: '>=4.0.0'}
+
   mongoose@9.1.5:
     resolution: {integrity: sha512-N6gypEO+wLmZp8kCYNQmrEWxVMT0KhyHvVttBZoKA/1ngY7aUsBjqHzCPtDgz+i8JAnqMOiEKmuJIDEQu1b9Dw==}
     engines: {node: '>=20.19.0'}
+
+  mpath@0.8.4:
+    resolution: {integrity: sha512-DTxNZomBcTWlrMW76jy1wvV37X/cNNxPW1y2Jzd4DZkAaC5ZGsm8bfGfNOthcDuRJujXLqiuS6o3Tpy0JEoh7g==}
+    engines: {node: '>=4.0.0'}
 
   mpath@0.9.0:
     resolution: {integrity: sha512-ikJRQTk8hw5DEoFVxHG1Gn9T/xcjtdnOKIU1JTmGjZZlg9LST2mBLmcX3/ICIbgJydT2GOc15RnNy5mHmzfSew==}
@@ -4004,6 +4028,12 @@ snapshots:
   '@types/methods@1.1.4': {}
 
   '@types/mime@1.3.5': {}
+
+  '@types/mongoose-paginate-v2@1.6.5(mongoose@9.1.5)':
+    dependencies:
+      mongoose-paginate-v2: 1.9.4(mongoose@9.1.5)
+    transitivePeerDependencies:
+      - mongoose
 
   '@types/ms@2.1.0': {}
 
@@ -5856,6 +5886,17 @@ snapshots:
 
   mongoose-aggregate-paginate-v2@1.1.4: {}
 
+  mongoose-lean-virtuals@1.1.1(mongoose@9.1.5):
+    dependencies:
+      mongoose: 9.1.5
+      mpath: 0.8.4
+
+  mongoose-paginate-v2@1.9.4(mongoose@9.1.5):
+    dependencies:
+      mongoose-lean-virtuals: 1.1.1(mongoose@9.1.5)
+    transitivePeerDependencies:
+      - mongoose
+
   mongoose@9.1.5:
     dependencies:
       kareem: 3.0.0
@@ -5872,6 +5913,8 @@ snapshots:
       - mongodb-client-encryption
       - snappy
       - socks
+
+  mpath@0.8.4: {}
 
   mpath@0.9.0: {}
 

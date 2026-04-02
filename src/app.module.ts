@@ -3,9 +3,10 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
-import { AuthModule,CategoryModule ,ProductModule,SubCategoryModule,BrandModule, CartModule,AddressModule,CouponModule} from './Modules';
+import { AuthModule,CategoryModule ,ProductModule,SubCategoryModule,BrandModule, CartModule,AddressModule,CouponModule,OrderModule} from './Modules';
 import { GlobalModule } from './global.module';
 import * as aggregatePaginate from 'mongoose-aggregate-paginate-v2';
+import * as mongoosePaginate from "mongoose-paginate-v2";
 import { EventsModule } from './Common/Gatways/gateways';
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { EventsModule } from './Common/Gatways/gateways';
     MongooseModule.forRoot(process.env.MONGO_URL, {
       connectionFactory: (connection) => {
         connection.plugin(aggregatePaginate);
+        connection.plugin(mongoosePaginate);
         return connection;
       },
     }),
@@ -27,7 +29,8 @@ import { EventsModule } from './Common/Gatways/gateways';
     CartModule,
     EventsModule,
     AddressModule,
-    CouponModule
+    CouponModule,
+    OrderModule
   ],
   controllers: [AppController],
   providers: [AppService],
