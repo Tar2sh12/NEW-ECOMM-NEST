@@ -11,6 +11,7 @@ import { CloudUploadFilesService } from 'src/Common/Services';
 import { CategoryService } from 'src/Modules/Category/Services/category.service';
 import { nanoid } from 'nanoid';
 import { BrandRepository, SubCategoryRepository } from 'src/DB/Repositories';
+import { RealTimeEventsGateway } from 'src/Common/Gatways/gateways';
 
 export interface CreateProductServiceParams {
   createProductDto: CreateProductDto;
@@ -26,6 +27,7 @@ export class ProductService {
     private readonly categoryService: CategoryService,
     private readonly subcategoryRepository: SubCategoryRepository,
     private readonly brandRepository: BrandRepository,
+    private readonly realTimeEventsGateway:RealTimeEventsGateway
   ) {}
 
   async create({
@@ -52,14 +54,14 @@ export class ProductService {
     }
 
     const isSubcategoryExists = await this.subcategoryRepository.findOne({
-      filters: { _id: createProductDto.subcategoryId },
+      filters: { _id: subcategoryId },
     });
     if (!isSubcategoryExists) {
       throw new NotFoundException('Subcategory not found');
     }
 
     const isBrandExists = await this.brandRepository.findOne({
-      filters: { _id: createProductDto.brandId },
+      filters: { _id: brandId },
     });
     if (!isBrandExists) {
       throw new NotFoundException('Brand not found');
@@ -93,8 +95,9 @@ export class ProductService {
     productObject['folderId'] = folderId;
 
     //console.log(productObject);
-
-    return await this.productRepository.create(productObject);
+    const product =  await this.productRepository.create(productObject);
+    this.realTimeEventsGateway.emitNewProduct(product);
+    return product;
   }
 
   async findAll(query: any) {

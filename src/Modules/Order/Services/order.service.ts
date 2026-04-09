@@ -10,6 +10,8 @@ import {
 } from 'src/DB/Repositories';
 import { IAuthUser, OrderStatus, paymentMethods } from 'src/Common/Types';
 import { DateTime } from 'luxon';
+import { Types } from 'mongoose';
+import { StripeService } from '../Payment/Services';
 @Injectable()
 export class OrderService {
   constructor(
@@ -17,7 +19,8 @@ export class OrderService {
     private readonly cartRepository: CartRepository,
     private readonly couponRepository: CouponRepository,
     private readonly addressRepository: AddressRepository,
-    private readonly productRepository: ProductRepository
+    private readonly productRepository: ProductRepository,
+    private readonly stripeService: StripeService,
   ) {}
 
   async create(createOrderDto: CreateOrderDto, user: IAuthUser) {
@@ -50,10 +53,9 @@ export class OrderService {
       throw new BadRequestException('Some products are sold out');
     }
     const subtotal = await this.cartRepository.calculateTotalPrice(cart);
-    
+
     let total = subtotal + shipingFee + VAT;
 
-    
     let coupon = null;
     if (couponCode) {
       const validCoupon = await this.couponRepository.validateCoupon(
@@ -64,7 +66,6 @@ export class OrderService {
         coupon = validCoupon.coupon;
         total = this.couponRepository.applyCoupon(coupon, subtotal);
         total = total + shipingFee + VAT;
-        
       }
     }
 
@@ -81,7 +82,7 @@ export class OrderService {
     //console.log(total,subtotal);
 
     const products = cart.products;
-    
+
     const order = await this.orderRepository.create({
       userId,
       addressId: address._id,
@@ -97,7 +98,7 @@ export class OrderService {
       estimatedDeliveryDate: DateTime.now()
         .plus({ days: 3 })
         .toFormat('yyyy-MM-dd'),
-        products
+      products,
     });
     await this.orderRepository.save(order);
 
@@ -111,17 +112,21 @@ export class OrderService {
         };
       }
       return user;
-    })
+    });
     await this.couponRepository.save(coupon);
 
     // decrement product stock
     for (const item of cart.products) {
       const product = item.productId;
-      const p= await this.productRepository.findOne({filters:{_id:product._id}});
-      if(!p){
-        throw new BadRequestException(`Product with id ${product._id} not found`);
+      const p = await this.productRepository.findOne({
+        filters: { _id: product._id },
+      });
+      if (!p) {
+        throw new BadRequestException(
+          `Product with id ${product._id} not found`,
+        );
       }
-      if(p.stock < item.quantity){
+      if (p.stock < item.quantity) {
         throw new BadRequestException(`Product ${p.title} is out of stock`);
       }
       p.stock -= item.quantity;
@@ -137,19 +142,160 @@ export class OrderService {
     };
   }
 
-  findAll() {
-    return `This action returns all order`;
+  async payWithStripe(orderId: Types.ObjectId, user: IAuthUser) {
+    const order = await this.orderRepository.findOne({
+      filters: {
+        _id: orderId,
+        userId: user.user._id,
+        orderStatus: OrderStatus.Pending,
+      },
+      populateArray: [
+        {
+          path: 'products.productId',
+          select: 'title finalPrice images',
+        },
+      ],
+    });
+    if (!order) {
+      throw new BadRequestException('Invalid order');
+    }
+    if (order.products.length === 0) {
+      throw new BadRequestException('Order has no products');
+    }
+    const line_items = order.products.map((item) => ({
+      price_data: {
+        currency: 'egp',
+        product_data: {
+          name: item.productId['title'],
+          images: item.productId['images'].map((img) => img.secure_url),
+        },
+        unit_amount: Math.round(item.productId['finalPrice'] * 100),
+      },
+      quantity: item.quantity,
+    }));
+    let discounts = [];
+    if (order.couponId) {
+      const stripeCoupon = await this.stripeService.createStripeCoupon(
+        order.couponId,
+      );
+      //return stripeCoupon;
+      if (stripeCoupon.valid === false) {
+        throw new BadRequestException('Invalid coupon');
+      }
+      discounts.push({ coupon: stripeCoupon.id });
+    }
+
+
+
+    return await this.stripeService.createCheckoutSession({
+      customer_email: user.user.email,
+      metadata: {
+        orderId: order._id.toString(),
+      },
+      line_items,
+      shipping_options: [
+        {
+          shipping_rate_data: {
+            type: 'fixed_amount',
+            fixed_amount: {
+              amount: (order.shipingFee + order.VAT) * 100,
+              currency: 'egp',
+            },
+            display_name: 'Shipping Fee plus VAT',
+          },
+        },
+      ],
+      discounts,
+    });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} order`;
+  async getMyOrder(orderId: Types.ObjectId, user: IAuthUser) {
+    const order = await this.orderRepository.findOne({
+      filters: {
+        _id: orderId,
+        userId: user.user._id,
+        orderStatus: OrderStatus.Pending,
+      },
+      populateArray: [
+        {
+          path: 'products.productId',
+          select: 'title finalPrice images',
+        },
+      ],
+    });
+    return order;
   }
 
-  update(id: number, updateOrderDto: UpdateOrderDto) {
-    return `This action updates a #${id} order`;
+  async stripeWebhookHandler(data: any) {
+    try {
+      if (data.type === 'checkout.session.completed') {
+        const orderId = data.data.object.metadata.orderId;
+        const order = await this.orderRepository.updateOne({
+          filters: { _id: orderId },
+          update: {
+            orderStatus: OrderStatus.PAID,
+            payment_intent: data.data.object.payment_intent,
+            orderChanges: { paidAt: DateTime.now() },
+          },
+        });
+        return order;
+      }
+    } catch (error) {
+      throw new BadRequestException('Webhook handler error');
+    }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} order`;
+  async cancelOrderService(orderId: Types.ObjectId, user: IAuthUser) {
+    const order = await this.orderRepository.findOne({
+      filters: {
+        _id: orderId,
+        userId: user.user._id,
+        orderStatus: {
+          $in: [OrderStatus.Placed, OrderStatus.PAID, OrderStatus.Pending],
+        },
+      },
+    });
+    if (!order) {
+      throw new BadRequestException('Invalid order');
+    }
+    //time difference between order creation and now should be less than 1 day
+    const timeDiff = DateTime.now().diff(
+      DateTime.fromJSDate(order['createdAt']),
+      'hours',
+    ).hours;
+    if (timeDiff > 24) {
+      throw new BadRequestException(
+        'You can only cancel your order within 24 hours of placing it',
+      );
+    }
+    await this.orderRepository.updateOne({
+      filters: { _id: orderId },
+      update: {
+        orderStatus: OrderStatus.Refunded,
+        orderChanges: {
+          refundedAt: DateTime.now(),
+          refundedBy: user.user._id,
+        },
+        cancelledAt: DateTime.now(),
+        cancelledBy: user.user._id,
+      },
+    });
+
+    if (order.paymentMethod === paymentMethods.Stripe) {
+      await this.stripeService.refundPaymentIntent({
+        payment_intent: order.payment_intent,
+        reason: 'requested_by_customer',
+      });
+    }
+
+    for (const item of order.products) {
+      const product = await this.productRepository.findOne({
+        filters: { _id: item.productId },
+      });
+      product.stock += item.quantity;
+      await this.productRepository.save(product);
+    }
+
+    return 'Order cancelled successfully';
   }
 }

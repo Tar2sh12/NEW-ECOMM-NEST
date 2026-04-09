@@ -87,6 +87,21 @@ export class Order {
     quantity: number;
     finalPrice: number;
   }[];
+
+
+      // This field can be used to track the order changes and can be seperated on a model
+    @Prop({
+        type: {
+            paidAt: Date,
+            deliveredAt: Date,
+            deliveredBy: { type: Types.ObjectId, ref: User.name }, // delivery person
+            cancelledAt: Date,
+            cancelledBy: { type: Types.ObjectId, ref: User.name }, // user should cancel his order
+            refundedAt: Date,
+            refundedBy: { type: Types.ObjectId, ref: User.name } // admins do manual refund , or in the cancellation api within a period
+        }
+    })
+    orderChanges: object
 }
 
 

@@ -4,6 +4,7 @@ import { Server, Socket } from "socket.io";
 import { Types } from "mongoose";
 import { from, map, Observable } from "rxjs";
 import { TokenService } from "src/Common/Services";
+import { ProductType } from "src/DB/Models";
 
 @WebSocketGateway({
     cors: {
@@ -116,6 +117,12 @@ export class RealTimeEventsGateway implements OnGatewayConnection, OnGatewayDisc
     // emit stock updates
     emitStockUpdates(productId: string | Types.ObjectId, newStock: number) {
         this.io.emit('stock-updated', { productId, newStock })
+    }
+
+
+    //emit when new product added 
+    emitNewProduct(product:ProductType){
+        this.io.emit('new-product',{product})
     }
 
 }

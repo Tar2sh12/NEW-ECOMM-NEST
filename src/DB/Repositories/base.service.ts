@@ -6,6 +6,7 @@ import {
   UpdateQuery,
   DeleteResult,
   UpdateResult,
+  QueryOptions,
 } from 'mongoose';
 import { ReviewStatus } from 'src/Common/Types/enums';
 
@@ -37,10 +38,11 @@ export abstract class BaseService<TDocument extends Document> {
     select = '',
     populateArray = [],
   }: IFindOneOption<TDocument>): Promise<TDocument | null> {
-    if (filters._id)
+    if (filters._id && Object.keys(filters).length === 1) {
       return await this.model
         .findById(filters._id, select)
         .populate(populateArray);
+    }
     return await this.model.findOne(filters, select).populate(populateArray);
   }
 
@@ -67,7 +69,7 @@ export abstract class BaseService<TDocument extends Document> {
     populateArray: PopulateOptions[],
     select: string,
   ) {
-    const list = new ApiFeatures(this.model, query, populateArray,select)
+    const list = new ApiFeatures(this.model, query, populateArray, select)
       .filters()
       .sort()
       .pagination()
@@ -75,15 +77,18 @@ export abstract class BaseService<TDocument extends Document> {
     return list;
   }
 
-  async updateOne(
-    filters: QueryFilter<TDocument>,
-    update: UpdateQuery<TDocument>,
-  ): Promise<TDocument | null> {
+  async updateOne({
+    filters,
+    update,
+    options,
+  }: {
+    filters: QueryFilter<TDocument>;
+    update: UpdateQuery<TDocument>;
+    options?: QueryOptions;
+  }): Promise<TDocument | null> {
     if (filters._id)
-      return await this.model.findByIdAndUpdate(filters._id, update, {
-        new: true,
-      });
-    return await this.model.findOneAndUpdate(filters, update, { new: true });
+      return await this.model.findByIdAndUpdate(filters._id, update);
+    return await this.model.findOneAndUpdate(filters, update, options);
   }
 
   async deleteOne({

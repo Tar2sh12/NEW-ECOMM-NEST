@@ -1,10 +1,16 @@
-import { IsString, IsNotEmpty, IsNumber, IsOptional, IsMongoId, IsEnum } from 'class-validator';
+import {
+  IsString,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsMongoId,
+  IsEnum,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 import { paymentMethods } from 'src/Common/Types';
 import { Types } from 'mongoose';
 
 export class CreateOrderDto {
-  
   @IsString()
   @IsNotEmpty()
   @IsEnum(paymentMethods)
@@ -12,7 +18,7 @@ export class CreateOrderDto {
 
   @IsMongoId()
   @IsNotEmpty()
-  @Type(() =>Types.ObjectId)
+  @Type(() => Types.ObjectId)
   addressId: Types.ObjectId;
 
   @IsString()
@@ -30,4 +36,11 @@ export class CreateOrderDto {
   @IsOptional()
   @IsString()
   couponCode?: string;
+}
+
+export class GetMyOrderDto {
+  @IsMongoId()
+  @IsNotEmpty()
+  @Type(() => Types.ObjectId)
+  orderId: Types.ObjectId;
 }

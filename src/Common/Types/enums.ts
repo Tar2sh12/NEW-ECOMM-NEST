@@ -43,7 +43,8 @@ export enum OrderStatus{
   Refunded="refunded",
   Returned="returned", // l user rfd ystlm
   Dropped="dropped", // l user msh mwgod ashan ystlm
-  OnWay="onway"
+  OnWay="onway",
+  PAID="paid", // l user dafa3 w mstlmsh
 }
 export enum ReviewStatus{
   Pending="pending",

@@ -15,6 +15,7 @@ import {
   SubCategoryRepository,
 } from 'src/DB/Repositories';
 import { CategoryService } from '../Category/Services/category.service';
+import { RealTimeEventsGateway } from 'src/Common/Gatways/gateways';
 
 @Module({
   imports: [ProductModel, CategoryModel, SubCategoryModel, BrandModel],
@@ -27,6 +28,7 @@ import { CategoryService } from '../Category/Services/category.service';
     CategoryRepository,
     SubCategoryRepository,
     BrandRepository,
+    RealTimeEventsGateway,
   ],
 })
 export class ProductModule {}
