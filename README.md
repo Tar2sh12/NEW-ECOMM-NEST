@@ -51,8 +51,10 @@ This project is a re-engineered version of a previous Express.js system, focusin
 
 ---
 
+
 ## 🏗️ Project Structure
 
+```bash
 src/
 │
 ├── Modules/
@@ -71,8 +73,7 @@ src/
 ├── Common/
 ├── Config/
 ├── Database/
-
----
+```
 
 ## ⚙️ Environment Variables
 
