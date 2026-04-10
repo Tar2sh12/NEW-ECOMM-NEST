@@ -90,9 +90,9 @@ Contains sensitive credentials:
 - App Port
 
 ---
-
 ### Example:
 
+```env
 # App
 PORT=3000
 
@@ -111,8 +111,8 @@ API_SECRET=your_secret
 # Email (Gmail)
 EMAIL_USER=your_email
 EMAIL_PASS=your_password
-
----
+```
+ 
 
 ## 📦 Installation
 
