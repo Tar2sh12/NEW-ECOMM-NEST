@@ -4,6 +4,7 @@ import { TokenService } from 'src/Common/Services';
 import { RevokedTokensModel, UserModel } from 'src/DB/Models';
 import { RevokedTokensRepository, UserRepository } from 'src/DB/Repositories';
 import { EventsModule } from './Common/Gatways/gateway.module';
+import { RealTimeEventsGateway } from './Common/Gatways/gateways';
 @Global()
 @Module({
   imports: [UserModel, RevokedTokensModel],
@@ -13,7 +14,8 @@ import { EventsModule } from './Common/Gatways/gateway.module';
     TokenService,
     RevokedTokensRepository,
     JwtService,
-    EventsModule
+    EventsModule,
+    RealTimeEventsGateway
   ],
   exports: [
     UserModel,
@@ -23,6 +25,7 @@ import { EventsModule } from './Common/Gatways/gateway.module';
     RevokedTokensRepository,
     JwtService,
     EventsModule
+    ,RealTimeEventsGateway
   ],
 })
 export class GlobalModule {}

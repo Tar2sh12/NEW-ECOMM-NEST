@@ -114,28 +114,13 @@ export class OrderService {
       return user;
     });
     await this.couponRepository.save(coupon);
-
-    // decrement product stock
-    for (const item of cart.products) {
-      const product = item.productId;
-      const p = await this.productRepository.findOne({
-        filters: { _id: product._id },
-      });
-      if (!p) {
-        throw new BadRequestException(
-          `Product with id ${product._id} not found`,
-        );
-      }
-      if (p.stock < item.quantity) {
-        throw new BadRequestException(`Product ${p.title} is out of stock`);
-      }
-      p.stock -= item.quantity;
-      await this.productRepository.save(p);
+    if (order.paymentMethod === paymentMethods.Cash) {
+      await this.productRepository.decrementStock(cart);
+      // clear cart
+      cart.products = [];
+      await this.cartRepository.save(cart);
     }
 
-    // clear cart
-    cart.products = [];
-    await this.cartRepository.save(cart);
     return {
       message: 'Order created successfully',
       data: order,
@@ -184,8 +169,6 @@ export class OrderService {
       }
       discounts.push({ coupon: stripeCoupon.id });
     }
-
-
 
     return await this.stripeService.createCheckoutSession({
       customer_email: user.user.email,
@@ -238,6 +221,19 @@ export class OrderService {
             orderChanges: { paidAt: DateTime.now() },
           },
         });
+        const cart = await this.cartRepository.findOne({
+          filters: { _id: order.cartId },
+          populateArray: [
+            {
+              path: 'products.productId',
+              select: 'title finalPrice images',
+            },
+          ],
+        });
+        await this.productRepository.decrementStock(cart);
+        // clear cart
+        cart.products = [];
+        await this.cartRepository.save(cart);
         return order;
       }
     } catch (error) {
