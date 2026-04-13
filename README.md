@@ -1,85 +1,202 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+🛒 E-Commerce Backend (NestJS)
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+A scalable and production-ready **E-commerce Backend API** built using **NestJS**, designed to handle real-world business logic including authentication, orders, payments, and more.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+This project is a re-engineered version of a previous Express.js system, focusing on better architecture, maintainability, and scalability.
 
-## Description
+---
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## 🚀 Features
 
-## Project setup
+### 🔐 Authentication & Security
+- JWT Authentication (Access & Refresh Tokens)
+- Email Verification (OTP)
+- Password Reset Flow
+- Blacklisted Tokens (secure logout)
+- Role-Based Authorization (Admin / User)
+
+---
+
+### 🛍️ E-Commerce Core
+- Products, Categories, Subcategories, Brands
+- Cart Management
+- Order Management
+- Reviews & Ratings
+- Address Management
+- Coupon & Discount System
+
+---
+
+### 💳 Payment Integration
+- Integrated with Stripe
+- Checkout Sessions
+- Webhook Handling
+- Secure Payment Verification
+
+---
+
+### ⚡ Performance & Architecture
+- Modular NestJS Architecture
+- Optimized MongoDB Queries with Indexing
+- Soft Delete Strategy
+- Clean Code Structure (Services, Controllers, DTOs)
+
+---
+
+### 🔔 Real-Time Updates
+- Socket-based notifications for:
+  - New Orders
+  - Order Updates
+  - Product Updates
+
+---
+
+
+## 🏗️ Project Structure
 
 ```bash
-$ pnpm install
+src/
+│
+├── Modules/
+│   ├── Auth/
+│   ├── User/
+│   ├── Product/
+│   ├── Category/
+│   ├── Brand/
+│   ├── Cart/
+│   ├── Order/
+│   ├── Payment/
+│   ├── Review/
+│   ├── Coupon/
+│   ├── Address/
+│
+├── Common/
+├── Config/
+├── Database/
 ```
 
-## Compile and run the project
+## ⚙️ Environment Variables
 
-```bash
-# development
-$ pnpm run start
+The project uses **two environment files**:
 
-# watch mode
-$ pnpm run start:dev
+### 1️⃣ `.env`
+Basic environment configuration
 
-# production mode
-$ pnpm run start:prod
+### 2️⃣ `Development.env`
+Contains sensitive credentials:
+- Stripe Keys
+- Cloudinary Config
+- Gmail Credentials
+- App Port
+
+---
+### Example:
+
+```env
+# App
+PORT=3000
+
+# JWT
+JWT_SECRET=your_secret
+
+# Stripe
+STRIPE_SECRET_KEY=your_key
+STRIPE_WEBHOOK_SECRET=your_webhook_secret
+
+# Cloudinary
+CLOUD_NAME=your_cloud
+API_KEY=your_key
+API_SECRET=your_secret
+
+# Email (Gmail)
+EMAIL_USER=your_email
+EMAIL_PASS=your_password
 ```
+ 
 
-## Run tests
+## 📦 Installation
 
-```bash
-# unit tests
-$ pnpm run test
+1. Clone the repository
+git clone https://github.com/Tar2sh12/NEW-ECOMM-NEST.git
+cd NEW-ECOMM-NEST
 
-# e2e tests
-$ pnpm run test:e2e
+2. Install dependencies (using pnpm)
+pnpm install
 
-# test coverage
-$ pnpm run test:cov
-```
+3. Setup environment variables
+- Create `.env`
+- Create `Development.env`
+- Add your credentials
 
-## Resources
+4. Run the project
 
-Check out a few resources that may come in handy when working with NestJS:
+Development mode:
+pnpm run start:dev
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+Production mode:
+pnpm run build
+pnpm run start:prod
 
-## Support
+---
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+## 🔗 API Documentation
 
-## Stay in touch
+Postman Collection:
+https://documenter.getpostman.com/view/34540021/2sBXirjTpj
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+---
 
-## License
+## 💻 GitHub Repository
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+https://github.com/Tar2sh12/NEW-ECOMM-NEST
+
+---
+
+## 🧠 How It Works
+
+### 🛒 Order Flow
+1. User adds products to cart
+2. Creates an order
+3. Applies coupon (optional)
+4. Proceeds to payment (Stripe Checkout)
+5. Payment is verified via webhook
+6. Order status updated automatically
+
+### 🔐 Authentication Flow
+1. User registers
+2. Receives OTP for email verification
+3. Logs in → receives Access & Refresh tokens
+4. Uses protected APIs
+5. Logout → token is blacklisted
+
+### 💳 Payment Flow
+1. Backend creates Stripe Checkout Session
+2. User completes payment
+3. Stripe sends webhook
+4. Backend verifies payment
+5. Order marked as paid
+
+---
+
+## 🧪 Tech Stack
+
+- NestJS
+- Node.js
+- MongoDB / Mongoose
+- Stripe
+- Cloudinary
+- Socket.io
+
+---
+
+## 📌 Future Improvements
+- Dockerization
+- CI/CD Pipeline
+- Unit & Integration Testing
+- Admin Dashboard
+
+---
+
+## 👨‍💻 Author
+
+Mohamed Tarek Salah
