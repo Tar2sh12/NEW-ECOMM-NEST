@@ -49,6 +49,14 @@ export class Order {
   @Prop({ type: String, required: true })
   contactNumber: string;
 
+  //paymobTransactionId
+  @Prop({ type: String })
+  paymobTransactionId: string;
+
+  //paymobOrderId
+  @Prop({ type: String })
+  paymobOrderId: string;
+
   //IDs
   @Prop({ type: Types.ObjectId, ref: User.name })
   deliveredBy: Types.ObjectId;

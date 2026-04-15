@@ -11,4 +11,15 @@ export class OrderRepository extends BaseService<OrderType> {
   ) {
     super(orderModel);
   }
+    async calculateTotalPrice(order:OrderType): Promise<number> {
+      let subTotal =0;
+      //console.log(cart.products);
+      
+      subTotal= order.products.reduce((total, product) => {
+        return total + (product.finalPrice * product.quantity);
+      }, 0);
+      //console.log(subTotal);
+      
+      return subTotal;
+    }
 }

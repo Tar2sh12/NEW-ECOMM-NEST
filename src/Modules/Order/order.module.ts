@@ -4,11 +4,12 @@ import { OrderController } from './Controller/order.controller';
 import { AddressModel, CartModel, CouponModel, OrderModel, ProductModel } from 'src/DB/Models';
 import { AddressRepository, CartRepository, CouponRepository, OrderRepository, ProductRepository } from 'src/DB/Repositories';
 import { CloudUploadFilesService } from 'src/Common/Services';
-import { StripeService } from './Payment/Services';
+import { PaymobService, StripeService } from './Payment/Services';
+import { HttpModule } from '@nestjs/axios';
 
 @Module({
-  imports:[OrderModel,CartModel,CouponModel,AddressModel,ProductModel],
+  imports:[OrderModel,CartModel,CouponModel,AddressModel,ProductModel,HttpModule],
   controllers: [OrderController],
-  providers: [OrderService,OrderRepository,CartRepository,CouponRepository,AddressRepository,ProductRepository , CloudUploadFilesService,StripeService],
+  providers: [OrderService,OrderRepository,CartRepository,CouponRepository,AddressRepository,ProductRepository , CloudUploadFilesService,StripeService,PaymobService],
 })
 export class OrderModule {}

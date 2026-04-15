@@ -1,6 +1,5 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateOrderDto } from '../dto/create-order.dto';
-import { UpdateOrderDto } from '../dto/update-order.dto';
 import {
   AddressRepository,
   CartRepository,
@@ -11,7 +10,7 @@ import {
 import { IAuthUser, OrderStatus, paymentMethods } from 'src/Common/Types';
 import { DateTime } from 'luxon';
 import { Types } from 'mongoose';
-import { StripeService } from '../Payment/Services';
+import { PaymobService, StripeService } from '../Payment/Services';
 @Injectable()
 export class OrderService {
   constructor(
@@ -21,6 +20,7 @@ export class OrderService {
     private readonly addressRepository: AddressRepository,
     private readonly productRepository: ProductRepository,
     private readonly stripeService: StripeService,
+    private readonly paymobService: PaymobService,
   ) {}
 
   async create(createOrderDto: CreateOrderDto, user: IAuthUser) {
@@ -284,6 +284,13 @@ export class OrderService {
       });
     }
 
+    if(order.paymentMethod === paymentMethods.Paymob){
+      await this.paymobService.refundTransaction(
+        parseInt(order.paymobTransactionId),
+        Math.round(order.total * 100),
+      );
+    }
+
     for (const item of order.products) {
       const product = await this.productRepository.findOne({
         filters: { _id: item.productId },
@@ -293,5 +300,90 @@ export class OrderService {
     }
 
     return 'Order cancelled successfully';
+  }
+
+
+  async createPaymobOrder(user: IAuthUser, orderId: Types.ObjectId) {
+
+    const order = await this.orderRepository.findOne({
+      filters: {
+        _id: orderId,
+        userId: user.user._id,
+        orderStatus: OrderStatus.Pending,
+      },
+      populateArray: [
+        {
+          path: 'products.productId',
+          select: 'title finalPrice images',
+        },
+      ],
+    });
+    if (!order) {
+      throw new BadRequestException('Invalid order');
+    }
+
+    //address
+    const address = await this.addressRepository.findOne({
+      filters: { _id: order.addressId },
+    });
+    if (!address) {
+      throw new BadRequestException('Invalid address');
+    }
+
+    const createPayment = await this.paymobService.createPayment({
+      amountCents: order.total * 100,
+      currency: 'EGP',
+      merchantOrderId: orderId.toString(),
+      billingData: {
+        first_name: user.user.firstName,
+        last_name: user.user.lastName,
+        email: user.user.email,
+        phone_number: '+20' + user.user.phone.replace(/^0/, ''),
+        apartment: address.buildingNumber,
+        floor: address.floorNumber.toString(),
+        street: 'NA',
+        building: address.buildingNumber.toString(),
+        city: address.city,
+        country: address.country,
+        state: 'NA',
+        postal_code: address.postalCode.toString(),
+      },
+      items: [
+        ...order.products.map((item) => ({
+          name: item.productId['title'],
+          amount_cents: Math.round(item.finalPrice * 100),
+          quantity: item.quantity,
+        })),
+      ],
+    });
+
+    return createPayment;
+  }
+
+  async paymobWebhookHandler(orderId: string, transactionId: string, paymobOrderId: string) {
+      const order = await this.orderRepository.updateOne({
+        filters: { _id: orderId },
+        update: {
+          orderStatus: OrderStatus.PAID,
+          orderChanges: { paidAt: DateTime.now() },
+          paymobTransactionId: transactionId,
+          paymobOrderId: paymobOrderId,
+        },
+        options: { new: true },
+      });
+      const cart = await this.cartRepository.findOne({
+        filters: { _id: order.cartId },
+        populateArray: [
+          {
+            path: 'products.productId',
+            select: 'title finalPrice images',
+          },
+        ],
+      });
+      await this.productRepository.decrementStock(cart);
+      // clear cart
+      cart.products = [];
+      await this.cartRepository.save(cart);
+      return order;
   }
 }
