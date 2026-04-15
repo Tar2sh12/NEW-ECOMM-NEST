@@ -87,7 +87,7 @@ export abstract class BaseService<TDocument extends Document> {
     options?: QueryOptions;
   }): Promise<TDocument | null> {
     if (filters._id)
-      return await this.model.findByIdAndUpdate(filters._id, update);
+      return await this.model.findByIdAndUpdate(filters._id, update, options);
     return await this.model.findOneAndUpdate(filters, update, options);
   }
 

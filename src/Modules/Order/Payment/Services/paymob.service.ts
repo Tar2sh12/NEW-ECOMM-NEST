@@ -141,6 +141,28 @@ export class PaymobService {
   // ─────────────────────────────────────────────
   private async getAuthToken(): Promise<string> {
     try {
+      //? Older RxJS way — deprecated now
+      // this.httpService.post(...).toPromise()
+      //? Current correct way
+      // firstValueFrom(this.httpService.post(...))
+
+
+      /*
+        * What the Observable Emits
+        For HttpService.post(), the Observable emits a single AxiosResponse object:
+        typescript{
+        data: { ... },          // the actual response body from Paymob API
+        status: 200,            // HTTP status code
+        statusText: 'OK',
+        headers: { ... },       // response headers
+        config: { ... },        // the axios request config that was used
+        request: { ... }        // the raw HTTP request object
+        }
+     */
+
+        
+      // * firstValueFrom
+      // It's a utility from RxJS that converts an Observable into a Promise by taking the first emitted value and resolving with it.
       const { data } = await firstValueFrom(
         this.httpService.post(`${this.BASE_URL}api/auth/tokens`, {
           api_key: process.env.PAYMOB_API_KEY,
@@ -281,26 +303,36 @@ export class PaymobService {
     transactionId: number,
     amountCents: number,
   ): Promise<any> {
-    this.logger.log(
-      `Refunding transaction: ${transactionId}, amount: ${amountCents}`,
-    );
+    try {
+      this.logger.log(
+        `Refunding transaction: ${transactionId}, amount: ${amountCents}`,
+      );
 
-    // Refund also needs a fresh auth token first
-    const authToken = await this.getAuthToken();
+      // Refund also needs a fresh auth token first
+      const authToken = await this.getAuthToken();
 
-    const { data } = await firstValueFrom(
-      this.httpService.post(
-        `${this.BASE_URL}api/acceptance/void_refund/refund`,
-        {
-          auth_token: authToken,
-          transaction_id: transactionId,
-          amount_cents: amountCents,
-        },
-      ),
-    );
+      const { data } = await firstValueFrom(
+        this.httpService.post(
+          `${this.BASE_URL}api/acceptance/void_refund/refund`,
+          {
+            auth_token: authToken,
+            transaction_id: transactionId,
+            amount_cents: amountCents,
+          },
+        ),
+      );
 
-    this.logger.log(`Refund response for transaction ${transactionId}:`, data);
-    return data;
+      this.logger.log(
+        `Refund response for transaction ${transactionId}:`,
+        data,
+      );
+      return data;
+    } catch (error) {
+      this.logger.error(
+        `Refund failed for transaction ${transactionId}:`,
+        error,
+      );
+    }
   }
 
   // ─────────────────────────────────────────────
