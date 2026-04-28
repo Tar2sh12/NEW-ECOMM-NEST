@@ -11,6 +11,7 @@ import { IAuthUser, OrderStatus, paymentMethods } from 'src/Common/Types';
 import { DateTime } from 'luxon';
 import { Types } from 'mongoose';
 import { PaymobService, StripeService } from '../Payment/Services';
+import { decrypt } from 'src/Common/Security';
 @Injectable()
 export class OrderService {
   constructor(
@@ -316,8 +317,14 @@ export class OrderService {
           path: 'products.productId',
           select: 'title finalPrice images',
         },
+        {
+          path:'couponId',
+          select:'couponCode couponType couponAmount'
+        }
       ],
     });
+    //console.log(order);
+    
     if (!order) {
       throw new BadRequestException('Invalid order');
     }
@@ -329,16 +336,18 @@ export class OrderService {
     if (!address) {
       throw new BadRequestException('Invalid address');
     }
+    const negaCoup = -Math.abs((order.total - order.subTotal) * 100);
 
-    const createPayment = await this.paymobService.createPayment({
-      amountCents: order.total * 100,
+    
+    const createPayment = await this.paymobService.createPaymentIntention({
+      amount: order.total * 100,
       currency: 'EGP',
-      merchantOrderId: orderId.toString(),
-      billingData: {
+      special_reference: orderId.toString(),
+      billing_data: {
         first_name: user.user.firstName,
         last_name: user.user.lastName,
         email: user.user.email,
-        phone_number: '+20' + user.user.phone.replace(/^0/, ''),
+        phone_number: '+20' + decrypt(user.user.phone, process.env.SECRET_ENCRYPTION_KEY).replace(/^0/, ''),
         apartment: address.buildingNumber,
         floor: address.floorNumber.toString(),
         street: 'NA',
@@ -351,9 +360,14 @@ export class OrderService {
       items: [
         ...order.products.map((item) => ({
           name: item.productId['title'],
-          amount_cents: Math.round(item.finalPrice * 100),
+          amount: Math.round(item.finalPrice * 100),
           quantity: item.quantity,
         })),
+        order.couponId? {
+          name: `Coupon: ${order.couponId['couponCode']}`,
+          amount: negaCoup,
+          quantity: 1,
+        }: null
       ],
     });
 

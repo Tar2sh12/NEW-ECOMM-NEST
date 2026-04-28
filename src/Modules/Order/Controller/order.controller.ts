@@ -11,6 +11,7 @@ import {
   HttpCode,
   UnauthorizedException,
   Query,
+  Request,
 } from '@nestjs/common';
 import { OrderService } from '../Services/order.service';
 import { CreateOrderDto, GetMyOrderDto } from '../dto/create-order.dto';
@@ -19,13 +20,18 @@ import { Auth } from 'src/Common/Guards';
 import { IAuthUser, SystemRoles } from 'src/Common/Types';
 import { User } from 'src/Common/Decorators';
 import { Types } from 'mongoose';
-import { PaymobRedirectQuery, PaymobService } from '../Payment/Services';
-
-
+import {
+  PaymobRedirectQuery,
+  PaymobService,
+  PaymobWebhookBody,
+} from '../Payment/Services';
 
 @Controller('order')
 export class OrderController {
-  constructor(private readonly orderService: OrderService, private readonly paymobService: PaymobService) {}
+  constructor(
+    private readonly orderService: OrderService,
+    private readonly paymobService: PaymobService,
+  ) {}
 
   @Post('create')
   @Auth([SystemRoles.USER])
@@ -74,29 +80,36 @@ export class OrderController {
     return await this.orderService.createPaymobOrder(user, orderId);
   }
 
-@Get('webhook-paymob')
-@HttpCode(200)
-async handleWebhook(@Query() query: PaymobRedirectQuery) {
-  // 1. Verify HMAC first — reject if tampered
+  @Post('webhook-paymob')
+  @HttpCode(200)
+  async handleWebhook(
+    @Query() query: PaymobRedirectQuery,
+    @Body() bod: PaymobWebhookBody,
+  ) {
+    // 1. Verify HMAC first — reject if tampered
 
+    const { validHmac, success, pending, order, body } =
+      this.paymobService.verifyHmac(bod, query.hmac);
+    if (!validHmac) throw new UnauthorizedException('Invalid HMAC');
+    let result = null;
+    // 3. Act on result
+    if (success && !pending) {
+      // console.log(`Payment successful for order ${order.merchant_order_id}`);
+      // console.log(`Paymob transaction ID: ${body.obj.id}`);
+      // //orderid
+      // console.log(`Paymob order ID: ${order.id}`);
+      result = await this.orderService.paymobWebhookHandler(
+        order.merchant_order_id,
+        body.obj.id.toString(),
+        order.id.toString(),
+      );
+    } else {
+      console.log(
+        `Payment failed or pending for order ${order.merchant_order_id}`,
+      );
+    }
 
-  
-
-  const {validHmac, success, pending, order, body} = this.paymobService.verifyHmac(query);
-  if (!validHmac) throw new UnauthorizedException('Invalid HMAC');
-  let result = null;
-  // 3. Act on result
-  if (success && !pending) {
-    console.log(`Payment successful for order ${order.merchant_order_id}`);
-    console.log(`Paymob transaction ID: ${body.obj.id}`);
-    //orderid
-    console.log(`Paymob order ID: ${order.id}`);
-    result = await this.orderService.paymobWebhookHandler( order.merchant_order_id, body.obj.id.toString(),  order.id.toString());
-  } else {
-    console.log(`Payment failed or pending for order ${order.merchant_order_id}`);
+    // 4. Redirect user to frontend result page
+    return { success, merchantOrderId: order.merchant_order_id, result };
   }
-
-  // 4. Redirect user to frontend result page
-  return { success, merchantOrderId: order.merchant_order_id ,result};
-}
 }

@@ -2,127 +2,9 @@ import { Injectable, UnauthorizedException, Logger } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
 import * as crypto from 'crypto';
+import { CreatePaymentDto, PaymentIntetionDto, PaymobWebhookBody } from './Types';
 
-// ─────────────────────────────────────────────
-//  TYPES
-// ─────────────────────────────────────────────
 
-export interface BillingData {
-  first_name: string;
-  last_name: string;
-  email: string;
-  phone_number: string;
-  apartment: string;
-  floor: string;
-  street: string;
-  building: string;
-  city: string;
-  country: string;
-  state: string;
-  postal_code: string;
-}
-
-export interface CreatePaymentDto {
-  amountCents: number; // e.g. 10000 = 100 EGP
-  currency: string; // e.g. 'EGP'
-  merchantOrderId: string; // YOUR internal order ID from your DB
-  billingData: BillingData;
-  items?: { name: string; amount_cents: number; quantity: number }[];
-}
-
-export interface PaymobWebhookBody {
-  obj: {
-    id: number;
-    success: boolean;
-    pending: boolean;
-    amount_cents: number;
-    currency: string;
-    created_at: string;
-    error_occured: boolean;
-    has_parent_transaction: boolean;
-    integration_id: number;
-    is_3d_secure: boolean;
-    is_auth: boolean;
-    is_capture: boolean;
-    is_refunded: boolean;
-    is_standalone_payment: boolean;
-    is_voided: boolean;
-    owner: number;
-    order: {
-      id: number;
-      merchant_order_id: string; // YOUR internal order ID
-    };
-    source_data: {
-      pan: string;
-      sub_type: string;
-      type: string;
-    };
-  };
-}
-
-// ─── Flat query params from Paymob GET redirect ───
-export interface PaymobRedirectQuery {
-  id: string;
-  pending: string;
-  amount_cents: string;
-  success: string;
-  is_auth: string;
-  is_capture: string;
-  is_standalone_payment: string;
-  is_voided: string;
-  is_refunded: string;
-  is_3d_secure: string;
-  integration_id: string;
-  has_parent_transaction: string;
-  order: string;
-  created_at: string;
-  currency: string;
-  error_occured: string;
-  is_void: string;
-  is_refund: string;
-  owner: string;
-  merchant_order_id: string;
-  'source_data.type': string;
-  'source_data.pan': string;
-  'source_data.sub_type': string;
-  hmac: string;
-}
-
-// ─── Mapper: flat query → your existing PaymobWebhookBody shape ───
-export function mapRedirectQueryToWebhookBody(
-  q: PaymobRedirectQuery,
-): PaymobWebhookBody {
-  return {
-    obj: {
-      id: Number(q.id),
-      success: q.success === 'true',
-      pending: q.pending === 'true',
-      amount_cents: Number(q.amount_cents),
-      currency: q.currency,
-      created_at: q.created_at,
-      error_occured: q.error_occured === 'true',
-      has_parent_transaction: q.has_parent_transaction === 'true',
-      integration_id: Number(q.integration_id),
-      is_3d_secure: q.is_3d_secure === 'true',
-      is_auth: q.is_auth === 'true',
-      is_capture: q.is_capture === 'true',
-      is_refunded: q.is_refunded === 'true',
-      is_standalone_payment: q.is_standalone_payment === 'true',
-      is_voided: q.is_voided === 'true',
-      owner: Number(q.owner),
-      order: {
-        id: Number(q.order),
-        merchant_order_id: q.merchant_order_id,
-      },
-      source_data: {
-        pan: q['source_data.pan'],
-        sub_type: q['source_data.sub_type'],
-        type: q['source_data.type'],
-      },
-    },
-  };
-}
-//--------------------------SERVICE-----------------------------------
 @Injectable()
 export class PaymobService {
   private readonly logger = new Logger(PaymobService.name);
@@ -132,6 +14,8 @@ export class PaymobService {
     process.env.PAYMOB_EGY_URL || 'https://accept.paymob.com/';
 
   constructor(private readonly httpService: HttpService) {}
+
+  //------------------------------------- first way of creating payment intention -------------------------------------
 
   // ─────────────────────────────────────────────
   //  STEP 1 — Get Auth Token
@@ -146,7 +30,6 @@ export class PaymobService {
       //? Current correct way
       // firstValueFrom(this.httpService.post(...))
 
-
       /*
         * What the Observable Emits
         For HttpService.post(), the Observable emits a single AxiosResponse object:
@@ -160,7 +43,6 @@ export class PaymobService {
         }
      */
 
-        
       // * firstValueFrom
       // It's a utility from RxJS that converts an Observable into a Promise by taking the first emitted value and resolving with it.
       const { data } = await firstValueFrom(
@@ -170,6 +52,8 @@ export class PaymobService {
       );
       return data.token;
     } catch (error) {
+      console.log(error);
+
       this.logger.error('Auth failed:', error);
       throw error;
     }
@@ -199,6 +83,8 @@ export class PaymobService {
       return data.id;
     } catch (error) {
       // ✅ This is what you need — the actual Paymob error body
+      console.log(error);
+
       console.log(
         'Paymob order error:',
         JSON.stringify(error['response']?.data, null, 2),
@@ -249,6 +135,8 @@ export class PaymobService {
 
       return data.token; // this is the payment_key token
     } catch (error) {
+      console.log(error);
+
       this.logger.error('Payment key failed:', error);
       throw error;
     }
@@ -287,7 +175,45 @@ export class PaymobService {
       this.logger.log(`Payment iframe ready for order: ${dto.merchantOrderId}`);
       return { iframeUrl, paymentKey };
     } catch (error) {
+      console.log(error);
+
       this.logger.error('Create payment failed:', error);
+      throw error;
+    }
+  }
+
+  //------------------------------------- second way of creating payment intention -------------------------------------
+
+  async createPaymentIntention(dto: PaymentIntetionDto) {
+    try {
+      const { data } = await firstValueFrom(
+        this.httpService.post(
+          `${this.BASE_URL}v1/intention/`,
+          {
+            amount: dto.amount,
+            currency: dto.currency,
+            payment_methods: [+process.env.PAYMOB_INTEGRATION_ID],
+            items: dto.items,
+            extras: dto.extras,
+            special_reference: dto.special_reference,
+            notification_url: process.env.NOTIFICATION_URL,
+            redirection_url: process.env.REDIRECTION_URL,
+            billing_data: dto.billing_data,
+          },
+          {
+            headers: {
+              Authorization: `Token ${process.env.PAYMOB_SECRET_KEY}`,
+            },
+          },
+        ),
+      );
+
+      //{{BASE_URL}}/unifiedcheckout/?publicKey={{public_key}}&clientSecret={{client_secret}}
+      const paymentUrl = `${this.BASE_URL}unifiedcheckout/?publicKey=${process.env.PAYMOB_PUBLIC_KEY}&clientSecret=${data.client_secret}`;
+      return { paymentUrl };
+    } catch (error) {
+      //console.log(error);
+      this.logger.error('Create payment intention failed:', error);
       throw error;
     }
   }
@@ -363,16 +289,10 @@ export class PaymobService {
   //  The hmac arrives as a query param: ?hmac=xxxx
   //  If this returns false → reject the request immediately.
   // ─────────────────────────────────────────────
-  verifyHmac(query: PaymobRedirectQuery) {
-    //body: PaymobRedirectQuery, receivedHmac: string
-    // 2. Map to your unified shape
-    const body = mapRedirectQueryToWebhookBody(query);
-    const receivedHmac = query.hmac;
+  // verifyHmac(query: PaymobRedirectQuery) {
+  verifyHmac(body: PaymobWebhookBody, receivedHmac: string) {
     const obj = body.obj;
     const { success, pending, order } = body.obj;
-    // Paymob concatenates these exact fields in this exact order
-    // to build the string they sign with your HMAC secret.
-    // Any mismatch in order or field names will cause verification to fail.
     const concatenatedString = [
       obj.amount_cents,
       obj.created_at,
