@@ -7,7 +7,7 @@ import {
   OrderRepository,
   ProductRepository,
 } from 'src/DB/Repositories';
-import { IAuthUser, OrderStatus, paymentMethods } from 'src/Common/Types';
+import { CouponTypes, IAuthUser, OrderStatus, paymentMethods } from 'src/Common/Types';
 import { DateTime } from 'luxon';
 import { Types } from 'mongoose';
 import { PaymobService, StripeService } from '../Payment/Services';
@@ -336,9 +336,19 @@ export class OrderService {
     if (!address) {
       throw new BadRequestException('Invalid address');
     }
-    const negaCoup = -Math.abs((order.total - order.subTotal) * 100);
+    let vat=order.VAT;
+    let shippingFee=order.shipingFee;
+    let couponAmount=0;
+    if(order.couponId){
+      if(order.couponId['couponAmount'] === CouponTypes.PERCENTAGE){
+        couponAmount = (order.subTotal * order.couponId['couponAmount']) / 100;
+      }
+      else{
+        couponAmount = order.couponId['couponAmount'];
+      }
+    }
+    const negaCoup = -Math.abs(Math.round(couponAmount * 100));
 
-    
     const createPayment = await this.paymobService.createPaymentIntention({
       amount: order.total * 100,
       currency: 'EGP',
@@ -363,6 +373,16 @@ export class OrderService {
           amount: Math.round(item.finalPrice * 100),
           quantity: item.quantity,
         })),
+        {
+          name: 'Shipping Fee',
+          amount: Math.round(shippingFee * 100),
+          quantity: 1,
+        },
+        {
+          name: 'VAT',
+          amount: Math.round(vat * 100),
+          quantity: 1,
+        },
         order.couponId? {
           name: `Coupon: ${order.couponId['couponCode']}`,
           amount: negaCoup,
