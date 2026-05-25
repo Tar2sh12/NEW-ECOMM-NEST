@@ -15,7 +15,7 @@ export class PaymobService {
 
   constructor(private readonly httpService: HttpService) {}
 
-  //------------------------------------- first way of creating payment intention -------------------------------------
+  //------------------------------------- first way of creating payment intention deprecated based on someone who works in paymob-------------------------------------
 
   // ─────────────────────────────────────────────
   //  STEP 1 — Get Auth Token
