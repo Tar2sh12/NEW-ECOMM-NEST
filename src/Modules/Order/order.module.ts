@@ -11,5 +11,6 @@ import { HttpModule } from '@nestjs/axios';
   imports:[OrderModel,CartModel,CouponModel,AddressModel,ProductModel,HttpModule],
   controllers: [OrderController],
   providers: [OrderService,OrderRepository,CartRepository,CouponRepository,AddressRepository,ProductRepository , CloudUploadFilesService,StripeService,PaymobService],
+  exports:[OrderService,OrderRepository,CartRepository,CouponRepository,AddressRepository,ProductRepository , CloudUploadFilesService,StripeService,PaymobService]
 })
 export class OrderModule {}

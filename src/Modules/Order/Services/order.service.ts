@@ -7,7 +7,12 @@ import {
   OrderRepository,
   ProductRepository,
 } from 'src/DB/Repositories';
-import { CouponTypes, IAuthUser, OrderStatus, paymentMethods } from 'src/Common/Types';
+import {
+  CouponTypes,
+  IAuthUser,
+  OrderStatus,
+  paymentMethods,
+} from 'src/Common/Types';
 import { DateTime } from 'luxon';
 import { Types } from 'mongoose';
 import { PaymobService, StripeService } from '../Payment/Services';
@@ -285,7 +290,7 @@ export class OrderService {
       });
     }
 
-    if(order.paymentMethod === paymentMethods.Paymob){
+    if (order.paymentMethod === paymentMethods.Paymob) {
       await this.paymobService.refundTransaction(
         parseInt(order.paymobTransactionId),
         Math.round(order.total * 100),
@@ -303,9 +308,7 @@ export class OrderService {
     return 'Order cancelled successfully';
   }
 
-
   async createPaymobOrder(user: IAuthUser, orderId: Types.ObjectId) {
-
     const order = await this.orderRepository.findOne({
       filters: {
         _id: orderId,
@@ -318,13 +321,13 @@ export class OrderService {
           select: 'title finalPrice images',
         },
         {
-          path:'couponId',
-          select:'couponCode couponType couponAmount'
-        }
+          path: 'couponId',
+          select: 'couponCode couponType couponAmount',
+        },
       ],
     });
     //console.log(order);
-    
+
     if (!order) {
       throw new BadRequestException('Invalid order');
     }
@@ -336,14 +339,13 @@ export class OrderService {
     if (!address) {
       throw new BadRequestException('Invalid address');
     }
-    let vat=order.VAT;
-    let shippingFee=order.shipingFee;
-    let couponAmount=0;
-    if(order.couponId){
-      if(order.couponId['couponAmount'] === CouponTypes.PERCENTAGE){
+    let vat = order.VAT;
+    let shippingFee = order.shipingFee;
+    let couponAmount = 0;
+    if (order.couponId) {
+      if (order.couponId['couponAmount'] === CouponTypes.PERCENTAGE) {
         couponAmount = (order.subTotal * order.couponId['couponAmount']) / 100;
-      }
-      else{
+      } else {
         couponAmount = order.couponId['couponAmount'];
       }
     }
@@ -357,7 +359,12 @@ export class OrderService {
         first_name: user.user.firstName,
         last_name: user.user.lastName,
         email: user.user.email,
-        phone_number: '+20' + decrypt(user.user.phone, process.env.SECRET_ENCRYPTION_KEY).replace(/^0/, ''),
+        phone_number:
+          '+20' +
+          decrypt(user.user.phone, process.env.SECRET_ENCRYPTION_KEY).replace(
+            /^0/,
+            '',
+          ),
         apartment: address.buildingNumber,
         floor: address.floorNumber.toString(),
         street: 'NA',
@@ -383,41 +390,54 @@ export class OrderService {
           amount: Math.round(vat * 100),
           quantity: 1,
         },
-        order.couponId? {
-          name: `Coupon: ${order.couponId['couponCode']}`,
-          amount: negaCoup,
-          quantity: 1,
-        }: null
+        order.couponId
+          ? {
+              name: `Coupon: ${order.couponId['couponCode']}`,
+              amount: negaCoup,
+              quantity: 1,
+            }
+          : null,
       ],
     });
 
     return createPayment;
   }
 
-  async paymobWebhookHandler(orderId: string, transactionId: string, paymobOrderId: string) {
-      const order = await this.orderRepository.updateOne({
-        filters: { _id: orderId },
-        update: {
-          orderStatus: OrderStatus.PAID,
-          orderChanges: { paidAt: DateTime.now() },
-          paymobTransactionId: transactionId,
-          paymobOrderId: paymobOrderId,
+  async paymobWebhookHandler(
+    orderId: string,
+    transactionId: string,
+    paymobOrderId: string,
+  ) {
+    const order = await this.orderRepository.updateOne({
+      filters: { _id: orderId },
+      update: {
+        orderStatus: OrderStatus.PAID,
+        orderChanges: { paidAt: DateTime.now() },
+        paymobTransactionId: transactionId,
+        paymobOrderId: paymobOrderId,
+      },
+      options: { new: true },
+    });
+    const cart = await this.cartRepository.findOne({
+      filters: { _id: order.cartId },
+      populateArray: [
+        {
+          path: 'products.productId',
+          select: 'title finalPrice images',
         },
-        options: { new: true },
-      });
-      const cart = await this.cartRepository.findOne({
-        filters: { _id: order.cartId },
-        populateArray: [
-          {
-            path: 'products.productId',
-            select: 'title finalPrice images',
-          },
-        ],
-      });
-      await this.productRepository.decrementStock(cart);
-      // clear cart
-      cart.products = [];
-      await this.cartRepository.save(cart);
-      return order;
+      ],
+    });
+    await this.productRepository.decrementStock(cart);
+    // clear cart
+    cart.products = [];
+    await this.cartRepository.save(cart);
+    return order;
+  }
+
+  async getOrdersService() {
+    const orders = await this.orderRepository.find({
+      populateArray: [{ path: 'cartId', select: 'products subTotal' }],
+    });
+    return orders;
   }
 }

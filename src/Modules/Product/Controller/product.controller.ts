@@ -49,6 +49,19 @@ export class ProductController {
     return res.status(200).json(result);
   }
 
+  @Get('list-cached-products')
+  async listProducts(@Res() res: Response) {
+    const result = await this.productService.listProducts();
+    return res.status(200).json(result);
+  }
+
+  @Get('build-product-list')
+  async buildProductList(@Res() res: Response) {
+    const result = await this.productService.buildProductList();
+    return res.status(200).json(result);
+  }
+
+  
   @Get('get-product/:id')
   async findOne(@Param('id') id: string, @Res() res: Response) {
     const result = await this.productService.findOne(id);

@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -12,6 +13,8 @@ import { CategoryService } from 'src/Modules/Category/Services/category.service'
 import { nanoid } from 'nanoid';
 import { BrandRepository, SubCategoryRepository } from 'src/DB/Repositories';
 import { RealTimeEventsGateway } from 'src/Common/Gatways/gateways';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Cache } from 'cache-manager';
 
 export interface CreateProductServiceParams {
   createProductDto: CreateProductDto;
@@ -27,7 +30,8 @@ export class ProductService {
     private readonly categoryService: CategoryService,
     private readonly subcategoryRepository: SubCategoryRepository,
     private readonly brandRepository: BrandRepository,
-    private readonly realTimeEventsGateway:RealTimeEventsGateway
+    private readonly realTimeEventsGateway:RealTimeEventsGateway,
+    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
   ) {}
 
   async create({
@@ -102,6 +106,20 @@ export class ProductService {
 
   async findAll(query: any) {
     const result = await this.productRepository.findByAggregate([], query);
+    return result;
+  }
+
+  async buildProductList(){
+    const result = await this.productRepository.find({});
+    //                                                           ? TTL              
+    const data = this.cacheManager.set('productList', result /** , 10000  */);
+    //! delete  = > const data = this.cacheManager.del('productList');
+    //! clearing all cache = > const data = this.cacheManager.clear();
+    return data;
+  }
+
+  async listProducts(){
+    const result = await this.cacheManager.get('productList');
     return result;
   }
 

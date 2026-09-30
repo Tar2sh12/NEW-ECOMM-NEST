@@ -1,8 +1,8 @@
 import { BadRequestException } from '@nestjs/common';
-import { Request, Express } from 'express';
+import { Request /**Express*/ } from 'express';
 import { diskStorage } from 'multer';
-import { DateTime } from "luxon";
-import { nanoid } from "nanoid";
+import { DateTime } from 'luxon';
+import { nanoid } from 'nanoid';
 
 interface MulterOptions {
   path?: string;
@@ -17,19 +17,19 @@ export const UploadFileOptions = ({
 }: MulterOptions) => {
   const storage = diskStorage({});
 
-  //in case of storing the file locally in our server 
-//   const storage = diskStorage({
-//     destination: `./Uploads/${path}`,
-//     filename: (req, file, cb) => {
-//       // 2026-12-1
-//       const now = DateTime.now().toFormat("yyyy-MM-dd");
-//       // generate a unique string
-//       const uniqueString = nanoid(4);
-//       // generate a unique file name
-//       const uniqueFileName = `${now}_${uniqueString}_${file.originalname}`;
-//       cb(null, uniqueFileName);
-//     },
-//   });
+  //in case of storing the file locally in our server
+  //   const storage = diskStorage({
+  //     destination: `./Uploads/${path}`,
+  //     filename: (req, file, cb) => {
+  //       // 2026-12-1
+  //       const now = DateTime.now().toFormat("yyyy-MM-dd");
+  //       // generate a unique string
+  //       const uniqueString = nanoid(4);
+  //       // generate a unique file name
+  //       const uniqueFileName = `${now}_${uniqueString}_${file.originalname}`;
+  //       cb(null, uniqueFileName);
+  //     },
+  //   });
 
   const fileFilter = (
     req: Request,
@@ -39,6 +39,11 @@ export const UploadFileOptions = ({
     if (allowedFileTypes.includes(file.mimetype)) {
       cb(null, true);
     } else {
+      console.log({
+        originalname: file.originalname,
+        mimetype: file.mimetype,
+        size: file.size,
+      });
       cb(
         new BadRequestException(`Unsupported file type ${file.mimetype}`),
         false,

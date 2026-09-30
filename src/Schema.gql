@@ -1,0 +1,65 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type CartProductsObjectType {
+  productId: ID!
+  quantity: Float!
+  finalPrice: Float!
+}
+
+type CartObjectType {
+  _id: ID!
+  products: [CartProductsObjectType!]!
+  subTotal: Float!
+}
+
+type OrderObjectType {
+  _id: ID!
+  subTotal: Float!
+  shipingFee: Float!
+  VAT: Float!
+  total: Float!
+  paymentMethod: PaymentMethodsEnum!
+  orderStatus: OrderStatusEnum!
+  deliveredBy: ID
+  cancelledBy: ID
+  refundBy: ID
+  addressId: ID!
+  couponId: ID!
+  userId: ID!
+  payment_intent: String
+  contactNumber: String!
+  paymobTransactionId: String
+  paymobOrderId: String
+  cartId: CartObjectType!
+}
+
+"""The payment method of the order"""
+enum PaymentMethodsEnum {
+  Stripe
+  Cash
+  Paymob
+}
+
+"""The status of the order"""
+enum OrderStatusEnum {
+  Pending
+  Confirmed
+  Delivered
+  Cancelled
+  Placed
+  Refunded
+  Returned
+  Dropped
+  OnWay
+  PAID
+}
+
+type Query {
+  """Root query for order module"""
+  OrderRootQueryResolver: String!
+
+  """Get all orders"""
+  getAllOrders: [OrderObjectType!]!
+}
