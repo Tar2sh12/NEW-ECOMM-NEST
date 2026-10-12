@@ -20,40 +20,23 @@ RUN corepack enable
 
 
 COPY package.json pnpm-lock.yaml ./
-# Copy the package files to the working directory
 
 # -----------------------development stage--------------------------
 
 FROM base as development 
 #            ^___development here is the stage name we have given in the docker-compose-dev file to the field "target: development"
-ENV NODE_ENV=.development
-
-RUN npm install --frozen-lockfile
+RUN pnpm install
 
 COPY . .
 
-CMD [ "npm", "run", "start:dev" ]
+CMD [ "pnpm", "run", "start:dev" ]
 
 # -----------------------production stage--------------------------
 
 FROM base as production
 #            ^___production here is the stage name we have given in the docker-compose-prod file to the field "target: production"
-ENV NODE_ENV=.production
-RUN npm install --only=production
+RUN pnpm install --only=production
 
 COPY . .
 
-CMD [ "npm", "run", "start:prod"]
-
-
-
-# ---------------- BUILD ----------------
-
-FROM base AS builder
-
-RUN npm install --frozen-lockfile
-
-COPY . .
-
-RUN npm run build
-
+CMD [ "pnpm", "run", "start:prod"]

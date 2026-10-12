@@ -17,5 +17,10 @@
     "strictBindCallApply": false,
     "forceConsistentCasingInFileNames": true,
     "noFallthroughCasesInSwitch": false
+  },// this for watching the files in docker container
+  "watchOptions":{
+    "watchFile":"dynamicPriorityPolling",
+    "watchDirectory":"dynamicPriorityPolling",
+    "excludeDirectories":["node_modules","dist"],
   }
 }

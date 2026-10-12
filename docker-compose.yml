@@ -3,6 +3,8 @@ version: '2.29.2'
 services:
   nestecomm-app:
     container_name: nestecomm-cont
+    environment:
+      - CHOKIDAR_USEPOLLING="true"
   mongo:
     image: mongo
     restart: always
