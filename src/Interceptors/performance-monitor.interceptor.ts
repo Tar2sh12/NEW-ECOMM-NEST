@@ -18,12 +18,12 @@ export class PerformanceMonitorInterceptor implements NestInterceptor {
       tap(() => {
         const end = Date.now();
         const duration = end - start;
-        if (context?.switchToHttp()?.getRequest()?.url) {
+        if (context['contextType'] === 'http') {
           console.log(
             `Request to ${context.switchToHttp().getRequest().originalUrl} took ${duration}ms`,
           );
         }
-        else{
+        else if(context['contextType'] === 'graphql'){
           console.log(`Request to ${gqlContext.getContext().req.originalUrl} took ${duration}ms`);
         }
       }),

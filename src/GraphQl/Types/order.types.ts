@@ -1,8 +1,9 @@
-import { Field, ObjectType, ID, Float  ,registerEnumType} from '@nestjs/graphql';
+import { Field, ObjectType, ID, Float  ,registerEnumType, InputType} from '@nestjs/graphql';
 import { OrderType } from 'src/DB/Models';
 import { Types } from 'mongoose';
 import { OrderStatus, paymentMethods } from 'src/Common/Types/enums';
 import { CartObjectType } from './cart.types';
+import { IsEnum, IsOptional, IsString } from 'class-validator';
 
 registerEnumType(OrderStatus, {
   name: 'OrderStatusEnum',
@@ -85,5 +86,16 @@ export class OrderObjectType implements Partial<OrderType> {
 
 
   @Field(() => CartObjectType, { nullable: false })
-  cartId: Types.ObjectId;
+  cartId; 
+}
+
+
+@InputType()
+export class OrderFilterDto{
+  @Field(() => OrderStatus, { nullable: true })
+  @IsString()
+  @IsOptional()
+  @IsEnum(OrderStatus, { message: 'Invalid order status' })
+  orderStatus?: OrderStatus;
+
 }

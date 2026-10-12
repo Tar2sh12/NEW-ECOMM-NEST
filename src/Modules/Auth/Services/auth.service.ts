@@ -67,7 +67,7 @@ export class AuthService {
       });
       return newUser;
     } catch (error) {
-      throw new InternalServerErrorException(error.message);
+      throw new InternalServerErrorException(error['message']);
     }
   }
   async LoginService(body) {
@@ -94,7 +94,7 @@ export class AuthService {
       });
       return { accessToken: token, refreshToken };
     } catch (error) {
-      throw new InternalServerErrorException(error.message);
+      throw new InternalServerErrorException(error['message']);
     }
   }
 
@@ -136,7 +136,7 @@ export class AuthService {
       await this.otpRepository.deleteOne({ filters: { _id: existingOTP._id } });
       return { message: 'Email confirmed successfully' };
     } catch (error) {
-      throw new InternalServerErrorException(error.message);
+      throw new InternalServerErrorException(error['message']);
     }
   }
 
@@ -155,7 +155,7 @@ export class AuthService {
       });
       return { message: 'Logged out successfully' };
     } catch (error) {
-      throw new InternalServerErrorException(error.message);
+      throw new InternalServerErrorException(error['message']);
     }
   }
 }

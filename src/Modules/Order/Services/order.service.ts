@@ -17,6 +17,7 @@ import { DateTime } from 'luxon';
 import { Types } from 'mongoose';
 import { PaymobService, StripeService } from '../Payment/Services';
 import { decrypt } from 'src/Common/Security';
+import { OrderFilterDto } from 'src/GraphQl/Types/order.types';
 @Injectable()
 export class OrderService {
   constructor(
@@ -434,9 +435,10 @@ export class OrderService {
     return order;
   }
 
-  async getOrdersService() {
+  async getOrdersService(orderFilter: OrderFilterDto , user: IAuthUser) {
     const orders = await this.orderRepository.find({
       populateArray: [{ path: 'cartId', select: 'products subTotal' }],
+      filters: orderFilter,
     });
     return orders;
   }

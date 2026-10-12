@@ -9,6 +9,7 @@ import {
 } from '@nestjs/common';
 import { TokenService } from '../Services';
 import { RevokedTokensRepository, UserRepository } from 'src/DB/Repositories';
+import { GqlExecutionContext } from '@nestjs/graphql';
 
 @Injectable()
 export class AuthenticationGuard implements CanActivate {
@@ -18,38 +19,82 @@ export class AuthenticationGuard implements CanActivate {
     private readonly revokedTokenRepository: RevokedTokensRepository,
   ) {}
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const request = context.switchToHttp().getRequest();
-    const { token } = request.headers;
-    if (!token) {
-      throw new UnauthorizedException('Please login first');
-    }
-    try {
-      const decoded = this.tokenService.verify(token, {
-        secret: process.env.LOGIN_ACCESS_TOKEN_SECRET,
-      });
-      const tokenId = decoded['jti'];
-      const isRevoked = await this.revokedTokenRepository.findOne({
-        filters: { tokenId },
-      });
-      if (isRevoked) {
-        throw new UnauthorizedException('your session is expired. Please login again');
+    if (context['contextType'] === 'http') {
+      const request = context.switchToHttp().getRequest();
+      const { token } = request.headers;
+      if (!token) {
+        throw new UnauthorizedException('Please login first');
       }
-      const user = await this.userRepository.findOne({
-        filters: { _id: decoded['userId'] },
-      });
-      if (!user) {
-        throw new NotFoundException('User not found');
+      try {
+        const decoded = this.tokenService.verify(token, {
+          secret: process.env.LOGIN_ACCESS_TOKEN_SECRET,
+        });
+        const tokenId = decoded['jti'];
+        const isRevoked = await this.revokedTokenRepository.findOne({
+          filters: { tokenId },
+        });
+        if (isRevoked) {
+          throw new UnauthorizedException(
+            'your session is expired. Please login again',
+          );
+        }
+        const user = await this.userRepository.findOne({
+          filters: { _id: decoded['userId'] },
+        });
+        if (!user) {
+          throw new NotFoundException('User not found');
+        }
+
+        request.authUser = { user, token: decoded };
+      } catch (error) {
+        console.log('auth guard error', error);
+        if (error instanceof HttpException) {
+          throw error;
+        }
+        throw new InternalServerErrorException(
+          error['message'] || 'Something went wrong',
+        );
       }
 
-      request.authUser = {user,token:decoded};
-    } catch (error) {
-      console.log('auth guard error', error);
-      if (error instanceof HttpException) {
-        throw error;
+      return true;
+    } else if (context['contextType'] === 'graphql') {
+      const request = GqlExecutionContext.create(context).getContext();
+      const { token } = request.req.headers;
+      if (!token) {
+        throw new UnauthorizedException('Please login first');
       }
-      throw new InternalServerErrorException(error.message);
-    }
+      try {
+        const decoded = this.tokenService.verify(token, {
+          secret: process.env.LOGIN_ACCESS_TOKEN_SECRET,
+        });
+        const tokenId = decoded['jti'];
+        const isRevoked = await this.revokedTokenRepository.findOne({
+          filters: { tokenId },
+        });
+        if (isRevoked) {
+          throw new UnauthorizedException(
+            'your session is expired. Please login again',
+          );
+        }
+        const user = await this.userRepository.findOne({
+          filters: { _id: decoded['userId'] },
+        });
+        if (!user) {
+          throw new NotFoundException('User not found');
+        }
 
-    return true;
+        request.authUser = { user, token: decoded };
+      } catch (error) {
+        console.log('auth guard error', error);
+        if (error instanceof HttpException) {
+          throw error;
+        }
+        throw new InternalServerErrorException(
+          error['message'] || 'Something went wrong',
+        );
+      }
+
+      return true;
+    }
   }
 }

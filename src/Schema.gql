@@ -61,5 +61,9 @@ type Query {
   OrderRootQueryResolver: String!
 
   """Get all orders"""
-  getAllOrders: [OrderObjectType!]!
+  getAllOrders(getOrderFilter: OrderFilterDto!): [OrderObjectType!]!
+}
+
+input OrderFilterDto {
+  orderStatus: OrderStatusEnum
 }
