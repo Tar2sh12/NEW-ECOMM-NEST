@@ -7,6 +7,7 @@ services:
     volumes:
       - ./src:/app/src:ro
       - ./test:/app/test:ro
+      - ./tsconfig.json:/app/tsconfig.json:ro
     ports:
       - "5155:4000" # map port 5155 of the host to 4000 of the container
       #  5155 -> docker port , 4000 -> local port
