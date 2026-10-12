@@ -1,0 +1,17 @@
+version: '2.29.2'
+services:
+  nestecomm-app:
+    build: #build the image from Dockerfile in the current directory
+      context: .
+      target: development #development stage
+    volumes:
+      - ./src:/app/src:ro
+      - ./test:/app/test:ro
+    ports:
+      - "5155:4000" # map port 5155 of the host to 4000 of the container
+      #  5155 -> docker port , 4000 -> local port
+    environment:
+      - NODE_ENV=.development
+    env_file:
+      - ./.development.env
+    

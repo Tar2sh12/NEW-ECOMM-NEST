@@ -1,0 +1,11 @@
+#for commonn things in all the docker-compose files
+version: '2.29.2'
+services:
+  nestecomm-app:
+    container_name: nestecomm-cont
+  mongo:
+    image: mongo
+    restart: always
+  redis:
+    image: redis
+    restart: always

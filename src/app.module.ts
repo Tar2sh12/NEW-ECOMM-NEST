@@ -28,9 +28,9 @@ import { GQLModule } from './GraphQl/graphql.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
-      envFilePath: [`.${process.env.NODE_ENV}.env`, '.env'],
+      envFilePath: [`${process.env.NODE_ENV}.env`, '.env'],
     }),
-    MongooseModule.forRoot(process.env.MONGO_URL, {
+    MongooseModule.forRoot(process.env.MONGO_URI, {
       connectionFactory: (connection) => {
         connection.plugin(aggregatePaginate);
         connection.plugin(mongoosePaginate);
@@ -52,7 +52,7 @@ import { GQLModule } from './GraphQl/graphql.module';
     // GraphQL module configuration
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
-      autoSchemaFile: './src/Schema.gql',
+      autoSchemaFile: true,
     }),
     GQLModule
   ],
