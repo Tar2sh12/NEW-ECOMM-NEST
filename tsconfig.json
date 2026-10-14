@@ -16,8 +16,13 @@
     "noImplicitAny": false,
     "strictBindCallApply": false,
     "forceConsistentCasingInFileNames": true,
-    "noFallthroughCasesInSwitch": false
-  },// this for watching the files in docker container
+    "noFallthroughCasesInSwitch": false,
+  },
+  // this for watching the files in docker container
+  /**
+    The dynamicPriorityPolling strategy periodically checks directories for changes instead of relying exclusively on file-system events.
+    This is particularly useful with Docker bind mounts, where directory change notifications can be unreliable.
+  */
   "watchOptions":{
     "watchFile":"dynamicPriorityPolling",
     "watchDirectory":"dynamicPriorityPolling",
