@@ -4,6 +4,8 @@ services:
     build: #build the image from Dockerfile in the current directory
       context: .
       target: development #development stage
+    # args:
+    #   - NODE_ENV=development
     volumes:
       - ./src:/app/src:ro
       - ./test:/app/test:ro

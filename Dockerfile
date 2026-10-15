@@ -21,6 +21,15 @@ RUN corepack enable
 
 COPY package.json pnpm-lock.yaml ./
 
+# old fashion way for multiple stages:
+# NODE_ENV ----> this argument will be passed from docker-compose-dev.yml and docker-compose-prod.yml files.
+# ARG NODE_ENV 
+# RUN if ["${NODE_ENV}"= "production"] ; \
+# #                                      ^--  this symbol is used to continue the command on the next line. 
+#     then pnpm install --only=production ; \
+#     else pnpm install ; \
+#     fi
+
 # -----------------------development stage--------------------------
 
 FROM base as development 

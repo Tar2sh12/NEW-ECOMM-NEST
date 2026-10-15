@@ -4,6 +4,8 @@ services:
     build: 
       context: .
       target: production #production stage
+    # args:
+    #   - NODE_ENV=production
     ports:
       - "5155:6000" # map port 5155 of the host to 6000 of the container
       #  5155 -> docker port , 6000 -> local port
