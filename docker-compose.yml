@@ -5,9 +5,36 @@ services:
     container_name: nestecomm-cont
     environment:
       - CHOKIDAR_USEPOLLING="true"
+
+  redis: 
+    image: redis
+    restart: always
+
   mongo:
     image: mongo
     restart: always
-  redis:
-    image: redis
+    volumes:
+      - mongo-db:/data/db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+      
+  mongo-express:
+    image: mongo-express
     restart: always
+    ports:
+      - 8081:8081 # http://mongoexpressuser:mongoexpresspass@localhost:8081
+    environment:
+      ME_CONFIG_MONGODB_URL: mongodb://root:example@mongo:27017/
+      ME_CONFIG_BASICAUTH_ENABLED: "true"
+      ME_CONFIG_BASICAUTH_USERNAME: mongoexpressuser
+      ME_CONFIG_BASICAUTH_PASSWORD: mongoexpresspass
+
+volumes:
+  mongo-db:
+
+  
+
+
+
+
