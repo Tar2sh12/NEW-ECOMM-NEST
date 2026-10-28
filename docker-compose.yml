@@ -5,6 +5,9 @@ services:
     container_name: nestecomm-cont
     environment:
       - CHOKIDAR_USEPOLLING="true"
+    depends_on: # this will start the mongo and redis containers before starting the nestecomm-app to grantee that the app can connect to them 
+      - mongo
+      - redis
 
   redis: 
     image: redis
@@ -18,7 +21,7 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: example
-      
+          
   mongo-express:
     image: mongo-express
     restart: always
@@ -29,6 +32,19 @@ services:
       ME_CONFIG_BASICAUTH_ENABLED: "true"
       ME_CONFIG_BASICAUTH_USERNAME: mongoexpressuser
       ME_CONFIG_BASICAUTH_PASSWORD: mongoexpresspass
+    depends_on:
+      - mongo
+
+  nginx:
+    image: nginx:stable-alpine
+    ports: 
+      - 80:80
+    volumes: 
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - nestecomm-app
+
+
 
 volumes:
   mongo-db:
