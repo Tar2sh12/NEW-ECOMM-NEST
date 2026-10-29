@@ -93,24 +93,74 @@ Contains sensitive credentials:
 ### Example:
 
 ```env
-# App
-PORT=3000
+# ============================================
+# 🗄️ Database & Server
+# ============================================
+MONGO_URI="mongodb://localhost:27017/ecommerce_nestjs"   # or a MongoDB Atlas connection string
+PORT=YOUR_PORT
+SALT_ROUNDS=10                                           # bcrypt salt rounds
 
-# JWT
-JWT_SECRET=your_secret
+# ============================================
+# 🔐 Authentication (JWT)
+# ============================================
+LOGIN_ACCESS_TOKEN_SECRET="your_access_token_secret_here"
+LOGIN_REFRESH_TOKEN_SECRET="your_refresh_token_secret_here"
+ACCESS_TOKEN_EXPIRATION_TIME="1D"                        # e.g. 1D = 1 day
+REFRESH_TOKEN_EXPIRATION_TIME="7D"                       # e.g. 7D = 7 days
 
-# Stripe
-STRIPE_SECRET_KEY=your_key
-STRIPE_WEBHOOK_SECRET=your_webhook_secret
+# ============================================
+# 🔑 Security & Encryption
+# ============================================
+PREFIX_SECRET="Bearer_"                                  # token prefix used in the Authorization header
+SECRET_ENCRYPTION_KEY="your_32_character_encryption_key"
+CONFIRM_TOKEN="your_email_confirmation_token_secret"
+CONFIRM_EMAIL_EXPIRATION_TIME="1D"                       # e.g. 1D = 1 day
 
-# Cloudinary
-CLOUD_NAME=your_cloud
-API_KEY=your_key
-API_SECRET=your_secret
+# ============================================
+# 📧 Email (Nodemailer)
+# ============================================
+NODEMAILER_EMAIL="your_email@gmail.com"
+NODEMAILER_APP_PASSWORD="abcd efgh ijkl mnop"            # Gmail App Password (not your real password)
+EMAIL_HOST="smtp.gmail.com"
+EMAIL_PORT=465                                           # 465 for SSL, 587 for TLS
 
-# Email (Gmail)
-EMAIL_USER=your_email
-EMAIL_PASS=your_password
+# ============================================
+# ☁️ Cloudinary (Image Uploads)
+# ============================================
+CLOUDINARY_CLOUD_NAME="your_cloud_name"
+CLOUDINARY_API_KEY="123456789012345"
+CLOUDINARY_API_SECRET="your_cloudinary_api_secret"
+CLOUDINARY_UPLOADS_FOLDER="Ecommerce_nestjs"
+
+# ============================================
+# 🌍 City API (fetch city data by postal code)
+# ============================================
+CITY_API_KEY="your_city_api_key"
+
+# ============================================
+# 💳 Stripe
+# ============================================
+STRIPE_SECRET_KEY="sk_test_your_stripe_secret_key"
+SUCCESS_URL="http://localhost:port/success"
+CANCEL_URL="http://localhost:port/cancel"
+
+# ============================================
+# 💰 Paymob
+# ============================================
+PAYMOB_API_KEY="your_paymob_api_key"
+PAYMOB_SECRET_KEY="egy_sk_test_your_paymob_secret_key"
+PAYMOB_PUBLIC_KEY="egy_pk_test_your_paymob_public_key"
+PAYMOB_INTEGRATION_ID="1234567"
+PAYMOB_IFRAME_ID="123456"
+PAYMOB_HMAC_KEY="your_paymob_hmac_key"
+PAYMOB_EGY_URL="https://accept.paymob.com/api"
+NOTIFICATION_URL="https://your-domain.com/api/payment/paymob/webhook"   # Paymob sends payment status here
+REDIRECTION_URL="http://localhost:port/payment/redirect" # or https://your-domain.com/payment/redirect
+
+# ============================================
+# ⚡ Redis
+# ============================================
+REDIS_URL="redis://default:password@host:port"
 ```
  
 
